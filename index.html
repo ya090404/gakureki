@@ -9,18 +9,18 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      background: black;
+      background-color: black;
       overflow: hidden;
     }
 
     #game {
       position: relative;
-      width: 100%;
-      height: 100%;
-      background-color: black;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    .background {
+    .bg {
       position: absolute;
       width: 100%;
       height: 100%;
@@ -28,107 +28,103 @@
       z-index: 0;
     }
 
-    .character {
+    .girl {
       position: absolute;
       bottom: 0;
       left: 50%;
       transform: translateX(-50%);
-      height: 90%;
+      height: 95%;
       z-index: 1;
-      pointer-events: none;
     }
 
     .textbox {
       position: absolute;
       bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
       width: 100%;
-      z-index: 2;
-    }
-
-    .textbox img {
-      width: 100%;
+      max-width: 700px;
       height: auto;
-      display: block;
-    }
-
-    .name {
-      position: absolute;
-      left: 12%;
-      bottom: 21%;
-      transform: translateY(-50%);
-      color: black;
-      font-size: 3.5vw;
-      font-weight: bold;
-      white-space: nowrap;
-      z-index: 3;
+      z-index: 2;
     }
 
     .face {
       position: absolute;
+      bottom: 5.3%;
       left: 6.2%;
-      bottom: 5%;
-      width: 10vw;
-      height: auto;
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
       z-index: 3;
+    }
+
+    .name {
+      position: absolute;
+      bottom: 18%;
+      left: 13.5%;
+      font-size: 18px;
+      color: black;
+      font-weight: bold;
+      z-index: 4;
     }
 
     .serif {
       position: absolute;
+      bottom: 10%;
       left: 22%;
-      bottom: 5%;
-      width: 70%;
-      font-size: 3.5vw;
+      right: 10%;
+      font-size: 18px;
       color: black;
-      text-shadow: 1px 1px 2px white, -1px -1px 2px white;
-      z-index: 3;
+      z-index: 4;
+      line-height: 1.4;
     }
 
-    @media (min-width: 768px) {
-      .name {
-        font-size: 24px;
-      }
-      .serif {
-        font-size: 24px;
+    @media (max-width: 500px) {
+      .name, .serif {
+        font-size: 16px;
       }
     }
   </style>
 </head>
 <body>
-  <div id="game" onclick="nextDialogue()">
-    <img src="haikei.PNG" class="background" />
-    <img src="girl.PNG" class="character" />
-    <div class="textbox">
-      <img src="serihu.PNG" />
-      <img id="face" src="boy.PNG" class="face" />
-      <div id="name" class="name">西条さん</div>
-      <div id="serif" class="serif">…どうしたの？急に呼び出して</div>
-    </div>
+  <div id="game">
+    <img src="haikei.PNG" class="bg" />
+    <img src="girl.PNG" class="girl" id="girl" />
+    <img src="serihu.PNG" class="textbox" />
+    <img src="boy.PNG" class="face" id="face" />
+    <div class="name" id="name">西条さん</div>
+    <div class="serif" id="serif">…どうしたの？急に呼び出して</div>
   </div>
 
   <script>
-    const dialogues = [
-      { name: "西条さん", text: "…どうしたの？急に呼び出して", face: "boy.PNG" },
-      { name: "俺", text: "実は…その…伝えたいことがあって！", face: "boy.PNG" },
-      { name: "西条さん", text: "えっ、なに？", face: "boy.PNG" },
-      { name: "俺", text: "ずっと…好きでした！俺と、付き合ってください！", face: "boy.PNG" },
-      { name: "西条さん", text: "…", face: "boy.PNG" },
-      { name: "俺", text: "(これは…ダメか…！？)", face: "boy.PNG" },
-      { name: "西条さん", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…", face: "boy.PNG" },
-      { name: "西条さん", text: "私、誰かと付き合う前に、テストをするって決めてるの。", face: "boy.PNG" },
-      { name: "俺", text: "テ………テスト！？", face: "boy.PNG" },
-      { name: "西条さん", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。", face: "boy.PNG" },
-      { name: "俺", text: "わ………わかった！！", face: "boy.PNG" }
+    const nameBox = document.getElementById("name");
+    const serifBox = document.getElementById("serif");
+    const face = document.getElementById("face");
+
+    const script = [
+      { name: "西条さん", text: "…どうしたの？急に呼び出して", face: false },
+      { name: "俺", text: "実は…その…伝えたいことがあって！", face: true },
+      { name: "西条さん", text: "えっ、なに？", face: false },
+      { name: "俺", text: "ずっと…好きでした！俺と、付き合ってください！", face: true },
+      { name: "西条さん", text: "…", face: false },
+      { name: "俺", text: "（これは…ダメか…！？）", face: true },
+      { name: "西条さん", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…", face: false },
+      { name: "西条さん", text: "私、誰かと付き合う前に、テストをするって決めてるの。", face: false },
+      { name: "俺", text: "テ………テスト！？", face: true },
+      { name: "西条さん", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。", face: false },
+      { name: "俺", text: "わ………わかった！！", face: true }
     ];
 
-    let current = 0;
-    function nextDialogue() {
-      current++;
-      if (current < dialogues.length) {
-        document.getElementById("name").innerText = dialogues[current].name;
-        document.getElementById("serif").innerText = dialogues[current].text;
-        document.getElementById("face").src = dialogues[current].face;
-      }
-    }
+    let index = 0;
+
+    document.getElementById("game").addEventListener("click", () => {
+      index++;
+      if (index >= script.length) return;
+      const line = script[index];
+      nameBox.textContent = line.name;
+      serifBox.textContent = line.text;
+      face.style.display = line.face ? "block" : "none";
+    });
   </script>
 </body>
 </html>
