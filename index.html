@@ -1,216 +1,194 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ノベル＋クイズゲーム</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=750, user-scalable=no">
+  <title>ノベルゲーム</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       background: black;
-      height: 100%;
       overflow: hidden;
     }
+
     canvas {
       display: block;
       margin: 0 auto;
       background: black;
     }
-    #inputContainer {
+
+    #textInputContainer {
       position: absolute;
-      top: 65%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: none;
-      z-index: 10;
-    }
-    #answerInput {
-      font-size: 20px;
-      padding: 8px;
-      width: 250px;
-      border-radius: 6px;
-      border: none;
+      width: 750px;
       text-align: center;
+      top: 870px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: none;
+    }
+
+    #textInput {
+      font-size: 32px;
+      padding: 10px;
+      width: 80%;
+      border: 2px solid #000;
+      border-radius: 5px;
+    }
+
+    #inputHint {
+      position: absolute;
+      top: 820px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      text-shadow: 2px 2px 0 #000, -2px 2px 0 #000, 2px -2px 0 #000, -2px -2px 0 #000;
+      z-index: 10;
+      display: none;
     }
   </style>
 </head>
 <body>
   <canvas id="gameCanvas" width="750" height="1334"></canvas>
-  <div id="inputContainer">
-    <input id="answerInput" type="text" placeholder="ひらがなで入力してね" />
+  <div id="inputHint">ひらがなで入力してね</div>
+  <div id="textInputContainer">
+    <input type="text" id="textInput" placeholder="ひらがなで入力してね">
   </div>
-
   <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const input = document.getElementById('textInput');
+    const inputContainer = document.getElementById('textInputContainer');
+    const inputHint = document.getElementById('inputHint');
 
     const images = {};
     const imageFiles = {
-      boy: "boy.PNG",
-      girl: "girl.PNG"
+      girl: 'girl.PNG',
+      boy: 'boy.PNG',
+      q1: 'F8A89A1D-16EF-41B2-AD8D-1524639516C2.png',
+      q2: '0D367773-0E87-4931-91B9-D824567ACF84.png'
     };
 
-    let currentScene = 0;
-    let answerInput = document.getElementById("answerInput");
-    let inputContainer = document.getElementById("inputContainer");
-    let score = 0;
+    let currentQuestion = 0;
+    let answers = [];
 
-    const scenes = [
-      { type: "image", image: "boy", text: "実は…その…伝えたいことがあって！" },
-      { type: "image", image: "girl", text: "えっ、なに？" },
-      { type: "image", image: "boy", text: "ずっと…好きでした！俺と、付き合ってください！" },
-      { type: "image", image: "girl", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…" },
-      { type: "image", image: "girl", text: "私、誰かと付き合う前に、テストをするって決めてるの。" },
-      { type: "image", image: "boy", text: "テ………テスト！？" },
-      { type: "image", image: "girl", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。" },
-      { type: "quiz1" },
-      { type: "quiz2" },
-    ];
-
-    function preloadImages(callback) {
-      let loaded = 0;
+    function loadImages(callback) {
       const keys = Object.keys(imageFiles);
+      let loaded = 0;
       keys.forEach(key => {
-        images[key] = new Image();
-        images[key].src = imageFiles[key];
-        images[key].onload = () => {
+        const img = new Image();
+        img.src = imageFiles[key];
+        img.onload = () => {
+          images[key] = img;
           loaded++;
           if (loaded === keys.length) callback();
         };
       });
     }
 
-    function drawScene() {
-      const scene = scenes[currentScene];
-      if (scene.type === "image") {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(images[scene.image], 0, 0, canvas.width, canvas.height);
-
-        // 名前枠
-        ctx.font = "bold 28px sans-serif";
-        ctx.fillStyle = "white";
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 4;
-        ctx.strokeText("西条さん", 60, 1040);
-        ctx.fillText("西条さん", 60, 1040);
-
-        // セリフ本文
-        ctx.font = "bold 30px sans-serif";
-        wrapText(scene.text, 60, 1090, 630, 36);
-      }
-
-      if (scene.type === "quiz1") showQuiz1();
-      if (scene.type === "quiz2") showQuiz2();
-    }
-
-    function wrapText(text, x, y, maxWidth, lineHeight) {
-      const words = text.split("");
-      let line = "";
-      for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n];
-        const metrics = ctx.measureText(testLine);
-        if (metrics.width > maxWidth && n > 0) {
-          ctx.strokeText(line, x, y);
-          ctx.fillText(line, x, y);
-          line = words[n];
-          y += lineHeight;
-        } else {
-          line = testLine;
-        }
-      }
-      ctx.strokeText(line, x, y);
-      ctx.fillText(line, x, y);
-    }
-
-    function showQuiz1() {
+    function drawImage(name) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(images["girl"], 0, 0, canvas.width, canvas.height);
-      ctx.font = "bold 28px sans-serif";
-      ctx.fillStyle = "white";
-      ctx.strokeStyle = "black";
+      ctx.drawImage(images[name], 0, 0, canvas.width, canvas.height);
+    }
+
+    function showQuestion1() {
+      drawImage('girl');
+      const qImg = images.q1;
+      ctx.drawImage(qImg, 200, 730, 350, 250);
+      ctx.font = 'bold 32px sans-serif';
+      ctx.fillStyle = 'white';
+      ctx.textAlign = 'center';
       ctx.lineWidth = 4;
-      ctx.strokeText("西条さん", 60, 1040);
-      ctx.fillText("西条さん", 60, 1040);
-      ctx.font = "bold 30px sans-serif";
-      wrapText("日本地図:この県はどこ？", 60, 1090, 630, 36);
+      ctx.strokeStyle = 'black';
+      ctx.strokeText('日本地図:この県はどこ？', canvas.width / 2, 720);
+      ctx.fillText('日本地図:この県はどこ？', canvas.width / 2, 720);
 
-      const map = new Image();
-      map.src = "DB64439C-EB4A-4CEF-BB0D-C257E659D889.png";
-      map.onload = () => {
-        ctx.drawImage(map, 200, 600, 350, 200);
-      };
-
-      createQuizButtons(["徳島県", "香川県", "愛媛県", "高知県"], "高知県", () => {
-        currentScene++;
-        drawScene();
+      const options = ['徳島県', '香川県', '愛媛県', '高知県'];
+      options.forEach((opt, i) => {
+        const x = 150 + (i % 2) * 230;
+        const y = 1050 + Math.floor(i / 2) * 100;
+        ctx.fillStyle = '#e48fb2';
+        ctx.fillRect(x, y, 170, 60);
+        ctx.font = 'bold 28px sans-serif';
+        ctx.fillStyle = 'black';
+        ctx.textAlign = 'center';
+        ctx.fillText(opt, x + 85, y + 40);
       });
     }
 
-    function showQuiz2() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(images["girl"], 0, 0, canvas.width, canvas.height);
-      ctx.font = "bold 28px sans-serif";
-      ctx.fillStyle = "white";
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 4;
-      ctx.strokeText("西条さん", 60, 1040);
-      ctx.fillText("西条さん", 60, 1040);
-      ctx.font = "bold 30px sans-serif";
-      wrapText("第二問:『？？』をひらがなで埋めてね。「？？、竹取の翁といふものありけり。野山にまじりて、竹をとりつゝ、よろづの事につかひけり。」（『竹取物語』）", 60, 1090, 630, 36);
+    function handleClick(event) {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
 
-      inputContainer.style.display = "block";
-      answerInput.value = "";
-      answerInput.focus();
-
-      answerInput.onkeypress = function (e) {
-        if (e.key === "Enter") {
-          const ans = answerInput.value.trim();
-          if (ans === "いまはむかし") score++;
-          inputContainer.style.display = "none";
-          currentScene++;
-          drawScene(); // ←次の問題（3問目）へ
+      if (currentQuestion === 1) {
+        const opts = [
+          { x: 150, y: 1050, label: '徳島県' },
+          { x: 380, y: 1050, label: '香川県' },
+          { x: 150, y: 1150, label: '愛媛県' },
+          { x: 380, y: 1150, label: '高知県' }
+        ];
+        for (let i = 0; i < opts.length; i++) {
+          const o = opts[i];
+          if (x >= o.x && x <= o.x + 170 && y >= o.y && y <= o.y + 60) {
+            answers.push(o.label === '高知県'); // 正解は「高知県」
+            currentQuestion = 2;
+            showQuestion2();
+            break;
+          }
         }
-      };
+      }
     }
 
-    function createQuizButtons(options, correct, callback) {
-      const existing = document.querySelectorAll(".quiz-btn");
-      existing.forEach(btn => btn.remove());
-
-      options.forEach((opt, idx) => {
-        const btn = document.createElement("button");
-        btn.className = "quiz-btn";
-        btn.textContent = opt;
-        btn.style.position = "absolute";
-        btn.style.left = (idx % 2 === 0 ? "100px" : "400px");
-        btn.style.top = (idx < 2 ? "950px" : "1050px");
-        btn.style.width = "200px";
-        btn.style.height = "60px";
-        btn.style.background = "pink";
-        btn.style.fontSize = "20px";
-        btn.style.border = "none";
-        btn.style.borderRadius = "10px";
-        btn.style.zIndex = 10;
-
-        btn.onclick = () => {
-          if (opt === correct) score++;
-          callback();
-        };
-
-        document.body.appendChild(btn);
+    function showQuestion2() {
+      drawImage('girl');
+      ctx.font = 'bold 30px sans-serif';
+      ctx.fillStyle = 'white';
+      ctx.textAlign = 'left';
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = 'black';
+      const lines = [
+        "第二問:『？？』をひらがなで埋めてね。",
+        "『？？、竹取の翁といふものありけり。",
+        "野山にまじりて竹をとりつゝ、",
+        "よろづの事につかひけり。』『竹取物語』"
+      ];
+      lines.forEach((line, i) => {
+        ctx.strokeText(line, 50, 780 + i * 50);
+        ctx.fillText(line, 50, 780 + i * 50);
       });
+
+      inputHint.style.display = 'block';
+      inputContainer.style.display = 'block';
+      input.value = '';
+      input.focus();
     }
 
-    canvas.addEventListener("click", () => {
-      const scene = scenes[currentScene];
-      if (scene.type === "image") {
-        currentScene++;
-        drawScene();
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        const ans = input.value.trim();
+        answers.push(ans === 'いまはむかし');
+        inputContainer.style.display = 'none';
+        inputHint.style.display = 'none';
+        alert("次の問題へ！"); // 今後：ここを3問目に差し替え
       }
     });
 
-    preloadImages(drawScene);
+    loadImages(() => {
+      drawImage('boy');
+      setTimeout(() => {
+        drawImage('girl');
+        setTimeout(() => {
+          currentQuestion = 1;
+          showQuestion1();
+        }, 1500);
+      }, 1500);
+    });
+
+    canvas.addEventListener('click', handleClick);
   </script>
 </body>
 </html>
