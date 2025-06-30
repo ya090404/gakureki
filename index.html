@@ -48,9 +48,12 @@
       width: 550px;
       line-height: 1.4;
     }
+    .small-text {
+      font-size: 28px !important;
+    }
     #map {
       position: absolute;
-      top: 200px;
+      top: 600px;
       left: 50%;
       transform: translateX(-50%);
       max-width: 80%;
@@ -150,6 +153,7 @@
         ctx.clearRect(0, 0, 750, 1334);
         ctx.drawImage(image, 0, 0, 750, 1334);
         nameBox.textContent = scene.name;
+        textBox.classList.remove("small-text");
         textBox.textContent = scene.text;
       };
     }
@@ -160,7 +164,8 @@
       image.onload = () => {
         ctx.drawImage(image, 0, 0, 750, 1334);
         nameBox.textContent = "西条さん";
-        textBox.textContent = "「日本地図の問題」\nこの県はどこ？";
+        textBox.classList.add("small-text");
+        textBox.textContent = "日本地図:この県はどこ？";
         mapImage.style.display = "block";
         buttons.forEach(btn => btn.classList.remove("hidden"));
       };
