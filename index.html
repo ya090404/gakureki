@@ -1,112 +1,27 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ノベル風ゲーム</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: black;
-      height: 100%;
-      overflow: hidden;
-    }
+.overlay {
+  position: absolute;
+  color: white;
+  font-weight: bold;
+  font-family: sans-serif;
+  pointer-events: none;
+  text-shadow:
+    -1px -1px 0 #000,
+     1px -1px 0 #000,
+    -1px  1px 0 #000,
+     1px  1px 0 #000;
+}
 
-    #container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+#name {
+  top: 942px; /* ピンクの中央に調整 */
+  left: 75px;
+  font-size: 26px;
+  width: 200px;
+}
 
-    canvas {
-      width: 100%;
-      height: auto;
-      max-height: 100%;
-      background-color: black;
-    }
-
-    #name {
-      position: absolute;
-      top: 946px;
-      left: 75px;
-      width: 200px;
-      font-size: 26px;
-      font-weight: bold;
-      color: white;
-      text-shadow: 1px 1px 2px black;
-      font-family: sans-serif;
-    }
-
-    #text {
-      position: absolute;
-      top: 1020px;
-      left: 100px;
-      width: 550px;
-      font-size: 36px;
-      font-weight: bold;
-      color: white;
-      text-shadow: 2px 2px 4px black;
-      line-height: 1.4;
-      font-family: sans-serif;
-    }
-
-    @media screen and (max-height: 1334px) {
-      #name { top: calc(946px * (100vh / 1334)); }
-      #text { top: calc(1020px * (100vh / 1334)); }
-    }
-  </style>
-</head>
-<body>
-  <div id="container">
-    <canvas id="gameCanvas" width="750" height="1334"></canvas>
-    <div id="name"></div>
-    <div id="text"></div>
-  </div>
-
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-
-    const scenarios = [
-      { img: "girl.PNG", name: "西条さん", text: "…どうしたの？急に呼び出して" },
-      { img: "boy.PNG", name: "俺", text: "実は…その…伝えたいことがあって！" },
-      { img: "girl.PNG", name: "西条さん", text: "えっ、なに？" },
-      { img: "boy.PNG", name: "俺", text: "ずっと…好きでした！俺と、付き合ってください！" },
-      { img: "girl.PNG", name: "西条さん", text: "…" },
-      { img: "boy.PNG", name: "俺", text: "（これは…ダメか…！？）" },
-      { img: "girl.PNG", name: "西条さん", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…" },
-      { img: "girl.PNG", name: "西条さん", text: "私、誰かと付き合う前に、テストをするって決めてるの。" },
-      { img: "boy.PNG", name: "俺", text: "テ………テスト！？" },
-      { img: "girl.PNG", name: "西条さん", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。" },
-      { img: "boy.PNG", name: "俺", text: "わ………わかった！！" }
-    ];
-
-    let current = 0;
-    const image = new Image();
-
-    function drawScene() {
-      const scene = scenarios[current];
-      image.src = scene.img;
-      image.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-        document.getElementById("name").textContent = scene.name;
-        document.getElementById("text").textContent = scene.text;
-      };
-    }
-
-    canvas.addEventListener("click", () => {
-      current++;
-      if (current < scenarios.length) {
-        drawScene();
-      }
-    });
-
-    drawScene();
-  </script>
-</body>
-</html>
+#text {
+  top: 1020px;
+  left: 100px;
+  font-size: 36px;
+  width: 550px;
+  line-height: 1.4;
+}
