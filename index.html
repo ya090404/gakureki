@@ -1,27 +1,114 @@
-.overlay {
-  position: absolute;
-  color: white;
-  font-weight: bold;
-  font-family: sans-serif;
-  pointer-events: none;
-  text-shadow:
-    -1px -1px 0 #000,
-     1px -1px 0 #000,
-    -1px  1px 0 #000,
-     1px  1px 0 #000;
-}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ノベル風ゲーム</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      height: 100%;
+      overflow: hidden;
+    }
+    #wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 750px;
+      height: 1334px;
+      transform-origin: top left;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .overlay {
+      position: absolute;
+      color: white;
+      font-weight: bold;
+      text-shadow: 2px 2px 0 black, -2px 2px 0 black, 2px -2px 0 black, -2px -2px 0 black;
+      font-family: sans-serif;
+      pointer-events: none;
+    }
+    #name {
+      top: 960px;
+      left: 75px;
+      font-size: 26px;
+      width: 200px;
+    }
+    #text {
+      top: 1020px;
+      left: 100px;
+      font-size: 36px;
+      width: 550px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div id="wrapper">
+    <canvas id="gameCanvas" width="750" height="1334"></canvas>
+    <div id="name" class="overlay"></div>
+    <div id="text" class="overlay"></div>
+  </div>
 
-#name {
-  top: 942px; /* ピンクの中央に調整 */
-  left: 75px;
-  font-size: 26px;
-  width: 200px;
-}
+  <script>
+    const wrapper = document.getElementById("wrapper");
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const nameBox = document.getElementById("name");
+    const textBox = document.getElementById("text");
 
-#text {
-  top: 1020px;
-  left: 100px;
-  font-size: 36px;
-  width: 550px;
-  line-height: 1.4;
-}
+    const scenarios = [
+      { img: "girl.PNG", name: "西条さん", text: "…どうしたの？急に呼び出して" },
+      { img: "boy.PNG", name: "俺", text: "実は…その…伝えたいことがあって！" },
+      { img: "girl.PNG", name: "西条さん", text: "えっ、なに？" },
+      { img: "boy.PNG", name: "俺", text: "ずっと…好きでした！俺と、付き合ってください！" },
+      { img: "girl.PNG", name: "西条さん", text: "…" },
+      { img: "boy.PNG", name: "俺", text: "（これは…ダメか…！？）" },
+      { img: "girl.PNG", name: "西条さん", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…" },
+      { img: "girl.PNG", name: "西条さん", text: "私、誰かと付き合う前に、テストをするって決めてるの。" },
+      { img: "boy.PNG", name: "俺", text: "テ………テスト！？" },
+      { img: "girl.PNG", name: "西条さん", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。" },
+      { img: "boy.PNG", name: "俺", text: "わ………わかった！！" }
+    ];
+
+    function resize() {
+      const scale = Math.min(
+        window.innerWidth / 750,
+        window.innerHeight / 1334
+      );
+      wrapper.style.transform = `scale(${scale})`;
+    }
+
+    let current = 0;
+    const image = new Image();
+
+    function drawScene() {
+      const scene = scenarios[current];
+      image.src = scene.img;
+      image.onload = () => {
+        ctx.clearRect(0, 0, 750, 1334);
+        ctx.drawImage(image, 0, 0, 750, 1334);
+        nameBox.textContent = scene.name;
+        textBox.textContent = scene.text;
+      };
+    }
+
+    canvas.addEventListener("click", () => {
+      current++;
+      if (current < scenarios.length) {
+        drawScene();
+      }
+    });
+
+    window.addEventListener("resize", resize);
+
+    resize();
+    drawScene();
+  </script>
+</body>
+</html>
