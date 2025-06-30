@@ -24,7 +24,6 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      display: block;
       position: absolute;
       top: 0;
       left: 0;
@@ -43,20 +42,19 @@
 
     #face-icon {
       position: absolute;
-      bottom: 190px;
+      bottom: 100px;
       left: 30px;
-      width: 120px;
+      width: 110px;
       height: auto;
       display: none;
-      z-index: 2;
+      z-index: 3;
     }
 
     #serihu-box {
       position: absolute;
       bottom: 0;
       width: 100%;
-      height: auto;
-      z-index: 3;
+      z-index: 2;
     }
 
     #serihu-img {
@@ -67,20 +65,20 @@
 
     #name {
       position: absolute;
-      bottom: 150px;
-      left: 80px;
+      bottom: 165px;
+      left: 60px;
       font-size: 20px;
       font-weight: bold;
-      color: white;
+      color: black;
       z-index: 4;
     }
 
     #text {
       position: absolute;
       bottom: 60px;
-      left: 80px;
-      right: 80px;
-      font-size: 22px;
+      left: 200px;  /* 顔画像に被らないように右に寄せる */
+      right: 60px;
+      font-size: 20px;
       line-height: 1.6;
       color: black;
       z-index: 4;
@@ -89,7 +87,7 @@
 
     #click-to-continue {
       position: absolute;
-      bottom: 10px;
+      bottom: 8px;
       right: 20px;
       font-size: 16px;
       color: white;
@@ -100,39 +98,39 @@
 </head>
 <body>
   <div id="container">
-    <!-- ✅ 正しい背景 -->
+    <!-- 背景 -->
     <img id="background" src="haikei.PNG" alt="背景">
 
-    <!-- ✅ 女の子立ち絵（常時表示） -->
+    <!-- 女の子 -->
     <img id="girl" src="girl.PNG" alt="女の子">
 
-    <!-- ✅ 主人公の顔（セリフ時のみ表示） -->
+    <!-- 主人公アイコン -->
     <img id="face-icon" src="boy.PNG" alt="主人公アイコン">
 
-    <!-- ✅ セリフ背景 -->
+    <!-- セリフボックス -->
     <div id="serihu-box">
       <img id="serihu-img" src="serihu.PNG" alt="セリフ背景">
     </div>
 
-    <!-- ✅ テキスト（名前・セリフ） -->
-    <div id="name">女の子</div>
+    <!-- 名前・テキスト -->
+    <div id="name">西条さん</div>
     <div id="text">…どうしたの？急に呼び出して</div>
     <div id="click-to-continue">▶クリックで進む</div>
   </div>
 
   <script>
     const script = [
-      { name: "女の子", text: "…どうしたの？急に呼び出して", speaker: "girl" },
-      { name: "主人公", text: "実は…その…伝えたいことがあって！", speaker: "boy" },
-      { name: "女の子", text: "えっ、なに？", speaker: "girl" },
-      { name: "主人公", text: "ずっと…好きでした！俺と、付き合ってください！", speaker: "boy" },
-      { name: "女の子", text: "…", speaker: "girl" },
-      { name: "主人公", text: "（これは…ダメか…！？）", speaker: "boy" },
-      { name: "女の子", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…", speaker: "girl" },
-      { name: "女の子", text: "私、誰かと付き合う前に、テストをするって決めてるの。", speaker: "girl" },
-      { name: "主人公", text: "テ………テスト！？", speaker: "boy" },
-      { name: "女の子", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。", speaker: "girl" },
-      { name: "主人公", text: "わ………わかった！！", speaker: "boy" }
+      { name: "西条さん", text: "…どうしたの？急に呼び出して", speaker: "girl" },
+      { name: "俺", text: "実は…その…伝えたいことがあって！", speaker: "boy" },
+      { name: "西条さん", text: "えっ、なに？", speaker: "girl" },
+      { name: "俺", text: "ずっと…好きでした！俺と、付き合ってください！", speaker: "boy" },
+      { name: "西条さん", text: "…", speaker: "girl" },
+      { name: "俺", text: "（これは…ダメか…！？）", speaker: "boy" },
+      { name: "西条さん", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…", speaker: "girl" },
+      { name: "西条さん", text: "私、誰かと付き合う前に、テストをするって決めてるの。", speaker: "girl" },
+      { name: "俺", text: "テ………テスト！？", speaker: "boy" },
+      { name: "西条さん", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。", speaker: "girl" },
+      { name: "俺", text: "わ………わかった！！", speaker: "boy" }
     ];
 
     let index = 0;
@@ -142,10 +140,14 @@
       document.getElementById('text').textContent = line.text;
 
       const face = document.getElementById('face-icon');
+      const text = document.getElementById('text');
+
       if (line.speaker === "boy") {
         face.style.display = "block";
+        text.style.left = "200px"; // 顔にかぶらないよう右寄り
       } else {
         face.style.display = "none";
+        text.style.left = "80px"; // 中央寄りに戻す
       }
     }
 
