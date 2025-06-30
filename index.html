@@ -18,6 +18,7 @@
       aspect-ratio: 3 / 4;
       margin: 0 auto;
       background-color: black;
+      overflow: hidden;
     }
 
     #background, #girl {
@@ -30,48 +31,59 @@
       z-index: 0;
     }
 
-    #serihu-img {
+    #serihu-box {
       position: absolute;
       bottom: 0;
       width: 100%;
       z-index: 2;
     }
 
+    #serihu-img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
     #face-icon {
       position: absolute;
-      bottom: 34px;
+      bottom: 42px;
       left: 35px;
       width: 95px;
-      height: auto;
       display: none;
       z-index: 3;
     }
 
+    .text-layer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 200px;
+      z-index: 4;
+      pointer-events: none;
+    }
+
     #name {
       position: absolute;
-      bottom: 155px;
-      left: 85px;
+      bottom: 144px;
+      left: 130px;
       font-size: 22px;
       font-weight: bold;
       color: black;
-      z-index: 4;
       text-shadow: 1px 1px 0 white, -1px -1px 0 white,
                    -1px 1px 0 white, 1px -1px 0 white;
     }
 
     #text {
       position: absolute;
-      bottom: 52px;
-      left: 130px;
-      right: 60px;
+      bottom: 45px;
+      left: 160px;
+      right: 50px;
       font-size: 24px;
-      line-height: 1.7;
+      line-height: 1.6;
       color: black;
-      z-index: 4;
-      word-break: break-word;
-      white-space: pre-line;
       text-shadow: 1px 1px 0 white, -1px -1px 0 white,
                    -1px 1px 0 white, 1px -1px 0 white;
+      white-space: pre-line;
     }
 
     #click-to-continue {
@@ -90,10 +102,16 @@
     <img id="background" src="haikei.PNG" alt="背景">
     <img id="girl" src="girl.PNG" alt="女の子">
     <img id="face-icon" src="boy.PNG" alt="主人公アイコン">
-    <img id="serihu-img" src="serihu.PNG" alt="セリフ背景">
 
-    <div id="name">西条さん</div>
-    <div id="text">…どうしたの？急に呼び出して</div>
+    <div id="serihu-box">
+      <img id="serihu-img" src="serihu.PNG" alt="セリフ背景">
+    </div>
+
+    <div class="text-layer">
+      <div id="name">西条さん</div>
+      <div id="text">…どうしたの？急に呼び出して</div>
+    </div>
+
     <div id="click-to-continue">▶クリックで進む</div>
   </div>
 
@@ -115,18 +133,21 @@
     let index = 0;
 
     function showLine(line) {
-      document.getElementById('name').textContent = line.name;
-      document.getElementById('text').textContent = line.text;
-
       const face = document.getElementById('face-icon');
       const text = document.getElementById('text');
+      const name = document.getElementById('name');
+
+      name.textContent = line.name;
+      text.textContent = line.text;
 
       if (line.speaker === "boy") {
         face.style.display = "block";
-        text.style.left = "130px"; // 顔を避ける
+        name.style.left = "130px"; // 顔を避けた場所に名前
+        text.style.left = "160px"; // 顔を避けて右寄りにセリフ
       } else {
         face.style.display = "none";
-        text.style.left = "85px"; // 少し中央に戻す
+        name.style.left = "85px";
+        text.style.left = "120px";
       }
     }
 
