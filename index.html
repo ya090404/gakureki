@@ -34,7 +34,7 @@
       pointer-events: none;
     }
     #name {
-      top: 940px;  /* ← 少しだけ上にした */
+      top: 940px;
       left: 75px;
       font-size: 26px;
       width: 200px;
@@ -46,6 +46,26 @@
       width: 550px;
       line-height: 1.4;
     }
+    #fade {
+      position: absolute;
+      width: 750px;
+      height: 1334px;
+      background: black;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s;
+    }
+    .quiz-button {
+      position: absolute;
+      width: 280px;
+      height: 80px;
+      background-color: pink;
+      border: none;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: sans-serif;
+    }
   </style>
 </head>
 <body>
@@ -53,6 +73,12 @@
     <canvas id="gameCanvas" width="750" height="1334"></canvas>
     <div id="name" class="overlay"></div>
     <div id="text" class="overlay"></div>
+    <div id="fade"></div>
+    <!-- クイズ選択肢 -->
+    <button id="btn1" class="quiz-button" style="top: 700px; left: 100px;">徳島県</button>
+    <button id="btn2" class="quiz-button" style="top: 800px; left: 100px;">香川県</button>
+    <button id="btn3" class="quiz-button" style="top: 900px; left: 100px;">愛媛県</button>
+    <button id="btn4" class="quiz-button" style="top: 1000px; left: 100px;">高知県</button>
   </div>
 
   <script>
@@ -61,6 +87,17 @@
     const ctx = canvas.getContext("2d");
     const nameBox = document.getElementById("name");
     const textBox = document.getElementById("text");
+    const fade = document.getElementById("fade");
+
+    const buttons = [
+      document.getElementById("btn1"),
+      document.getElementById("btn2"),
+      document.getElementById("btn3"),
+      document.getElementById("btn4")
+    ];
+
+    // 最初はボタン非表示
+    buttons.forEach(btn => btn.style.display = "none");
 
     const scenarios = [
       { img: "girl.PNG", name: "西条さん", text: "…どうしたの？急に呼び出して" },
@@ -77,18 +114,14 @@
     ];
 
     function resize() {
-      const scale = Math.min(
-        window.innerWidth / 750,
-        window.innerHeight / 1334
-      );
+      const scale = Math.min(window.innerWidth / 750, window.innerHeight / 1334);
       wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
     }
 
     let current = 0;
     const image = new Image();
 
-    function drawScene() {
-      const scene = scenarios[current];
+    function drawScene(scene) {
       image.src = scene.img;
       image.onload = () => {
         ctx.clearRect(0, 0, 750, 1334);
@@ -98,17 +131,46 @@
       };
     }
 
+    function startQuiz() {
+      // フェードアウト
+      fade.style.opacity = 1;
+      setTimeout(() => {
+        const quizImage = new Image();
+        quizImage.src = "girl.PNG";
+        quizImage.onload = () => {
+          ctx.clearRect(0, 0, 750, 1334);
+          ctx.drawImage(quizImage, 0, 0, 750, 1334);
+
+          // 地図画像の表示
+          const map = new Image();
+          map.src = "4koku.PNG";
+          map.onload = () => {
+            ctx.drawImage(map, (750 - map.width) / 2, 300); // 中央に配置
+          };
+
+          // 問題文と名前
+          nameBox.textContent = "西条さん";
+          textBox.textContent = "この県はどこ？";
+
+          // フェード解除 & ボタン表示
+          fade.style.opacity = 0;
+          buttons.forEach(btn => btn.style.display = "block");
+        };
+      }, 1000);
+    }
+
     canvas.addEventListener("click", () => {
       current++;
       if (current < scenarios.length) {
-        drawScene();
+        drawScene(scenarios[current]);
+      } else if (current === scenarios.length) {
+        startQuiz();
       }
     });
 
     window.addEventListener("resize", resize);
-
     resize();
-    drawScene();
+    drawScene(scenarios[current]);
   </script>
 </body>
 </html>
