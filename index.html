@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>告白イベント</title>
   <style>
     html, body {
@@ -15,17 +15,17 @@
       position: relative;
       width: 100vw;
       max-width: 768px;
-      aspect-ratio: 3 / 4; /* 768x1024 */
+      aspect-ratio: 3 / 4;
       margin: 0 auto;
       background-color: black;
     }
 
     #background, #girl {
       position: absolute;
-      top: 0;
-      left: 0;
       width: 100%;
       height: 100%;
+      top: 0;
+      left: 0;
       object-fit: cover;
       z-index: 0;
     }
@@ -34,15 +34,14 @@
       position: absolute;
       bottom: 0;
       width: 100%;
-      height: auto;
       z-index: 2;
     }
 
     #face-icon {
       position: absolute;
-      bottom: 28px;
-      left: 28px;
-      width: 85px;
+      bottom: 34px;
+      left: 35px;
+      width: 95px;
       height: auto;
       display: none;
       z-index: 3;
@@ -50,25 +49,29 @@
 
     #name {
       position: absolute;
-      bottom: 162px;
-      left: 75px;
-      font-size: 18px;
+      bottom: 155px;
+      left: 85px;
+      font-size: 22px;
       font-weight: bold;
       color: black;
       z-index: 4;
+      text-shadow: 1px 1px 0 white, -1px -1px 0 white,
+                   -1px 1px 0 white, 1px -1px 0 white;
     }
 
     #text {
       position: absolute;
-      bottom: 50px;
-      left: 115px;
-      right: 50px;
-      font-size: 18px;
-      line-height: 1.5;
+      bottom: 52px;
+      left: 130px;
+      right: 60px;
+      font-size: 24px;
+      line-height: 1.7;
       color: black;
       z-index: 4;
       word-break: break-word;
       white-space: pre-line;
+      text-shadow: 1px 1px 0 white, -1px -1px 0 white,
+                   -1px 1px 0 white, 1px -1px 0 white;
     }
 
     #click-to-continue {
@@ -120,10 +123,10 @@
 
       if (line.speaker === "boy") {
         face.style.display = "block";
-        text.style.left = "115px"; // 被らないよう維持
+        text.style.left = "130px"; // 顔を避ける
       } else {
         face.style.display = "none";
-        text.style.left = "75px"; // 少し中央寄せ
+        text.style.left = "85px"; // 少し中央に戻す
       }
     }
 
