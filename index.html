@@ -2,75 +2,87 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>告白ゲーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ノベル風ゲーム</title>
   <style>
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
       background: black;
       overflow: hidden;
     }
     canvas {
       display: block;
-      width: 100vw;
-      height: 100vh;
+      margin: 0 auto;
+      background-color: black;
+    }
+    #text {
+      position: absolute;
+      top: 1020px;
+      left: 100px;
+      width: 550px;
+      font-size: 36px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 2px 2px 0 black, -2px 2px 0 black, 2px -2px 0 black, -2px -2px 0 black;
+      line-height: 1.4;
+    }
+    #name {
+      position: absolute;
+      top: 960px;
+      left: 75px;
+      width: 200px;
+      font-size: 26px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 2px 2px 0 black;
     }
   </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
+  <canvas id="gameCanvas" width="750" height="1334"></canvas>
+  <div id="name"></div>
+  <div id="text"></div>
 
   <script>
-    const canvas = document.getElementById("canvas");
+    const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
-    canvas.width = 750;
-    canvas.height = 1334;
 
-    const lines = [
-      { img: "girl.PNG", text: "…どうしたの？急に呼び出して" },
-      { img: "boy.PNG", text: "実は…その…伝えたいことがあって！" },
-      { img: "girl.PNG", text: "えっ、なに？" },
-      { img: "boy.PNG", text: "ずっと…好きでした！俺と、付き合ってください！" },
-      { img: "girl.PNG", text: "…" },
-      { img: "boy.PNG", text: "これは…ダメか…！？" },
-      { img: "girl.PNG", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…" },
-      { img: "girl.PNG", text: "私、誰かと付き合う前に、テストをするって決めてるの。" },
-      { img: "boy.PNG", text: "テ………テスト！？" },
-      { img: "girl.PNG", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。" },
-      { img: "boy.PNG", text: "わ………わかった！！" }
+    const scenarios = [
+      { img: "girl.PNG", name: "西条さん", text: "…どうしたの？急に呼び出して" },
+      { img: "boy.PNG", name: "俺", text: "実は…その…伝えたいことがあって！" },
+      { img: "girl.PNG", name: "西条さん", text: "えっ、なに？" },
+      { img: "boy.PNG", name: "俺", text: "ずっと…好きでした！俺と、付き合ってください！" },
+      { img: "girl.PNG", name: "西条さん", text: "…" },
+      { img: "boy.PNG", name: "俺", text: "（これは…ダメか…！？）" },
+      { img: "girl.PNG", name: "西条さん", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…" },
+      { img: "girl.PNG", name: "西条さん", text: "私、誰かと付き合う前に、テストをするって決めてるの。" },
+      { img: "boy.PNG", name: "俺", text: "テ………テスト！？" },
+      { img: "girl.PNG", name: "西条さん", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。" },
+      { img: "boy.PNG", name: "俺", text: "わ………わかった！！" }
     ];
 
     let current = 0;
-    let currentImg = new Image();
-    currentImg.src = lines[current].img;
-    currentImg.onload = () => draw();
+    const image = new Image();
 
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(currentImg, 0, 0, canvas.width, canvas.height);
-
-      // テキストの描画
-      ctx.font = "36px sans-serif";
-      ctx.fillStyle = "black";
-      ctx.strokeStyle = "white";
-      ctx.lineWidth = 4;
-      ctx.textAlign = "center";
-
-      const text = lines[current].text;
-      const x = canvas.width / 2;
-      const y = 1195; // テキスト枠の中央付近に固定
-
-      ctx.strokeText(text, x, y);
-      ctx.fillText(text, x, y);
+    function drawScene() {
+      const scene = scenarios[current];
+      image.src = scene.img;
+      image.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(image, 0, 0, 750, 1334);
+        document.getElementById("name").textContent = scene.name;
+        document.getElementById("text").textContent = scene.text;
+      };
     }
 
     canvas.addEventListener("click", () => {
       current++;
-      if (current >= lines.length) current = lines.length - 1;
-      currentImg.src = lines[current].img;
-      currentImg.onload = () => draw();
+      if (current < scenarios.length) {
+        drawScene();
+      }
     });
+
+    drawScene();
   </script>
 </body>
 </html>
