@@ -1,74 +1,95 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>告白シーン</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>セリフ付き切り替え</title>
   <style>
     body {
       margin: 0;
-      background-color: black;
-      overflow: hidden;
-    }
-    #container {
-      position: relative;
-      width: 100vw;
+      background: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       height: 100vh;
     }
-    .layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    #textbox {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 35%;
-    }
-    #name {
-      position: absolute;
-      left: 8vw;
-      bottom: 29%;
-      font-size: 4vw;
-      font-weight: bold;
-      color: black;
-      padding-left: 2vw;
-    }
-    #serif {
-      position: absolute;
-      left: 16vw;
-      bottom: 13%;
-      width: 70vw;
-      font-size: 4.2vw;
-      font-weight: bold;
-      color: black;
-      text-shadow: -1px -1px 0 white,
-                   1px -1px 0 white,
-                   -1px 1px 0 white,
-                   1px 1px 0 white;
-    }
-    #icon {
-      position: absolute;
-      bottom: 5%;
-      left: 5%;
-      width: 14vw;
-      height: auto;
+    canvas {
+      image-rendering: pixelated;
+      display: block;
     }
   </style>
 </head>
 <body>
-  <div id="container">
-    <img src="haikei.PNG" class="layer" id="bg">
-    <img src="girl.PNG" class="layer" id="girl">
-    <img src="serihu.PNG" class="layer" id="textbox">
-    <img src="boy.PNG" id="icon">
-    <div id="name">俺</div>
-    <div id="serif">実は…その…伝えたいことがあって！</div>
-  </div>
+  <canvas id="canvas" width="768" height="1024"></canvas>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const images = {
+      girl: new Image(),
+      boy: new Image()
+    };
+
+    images.girl.src = "girl.PNG";
+    images.boy.src = "boy.PNG";
+
+    const script = [
+      { name: "西条さん", image: "girl", text: "…どうしたの？急に呼び出して" },
+      { name: "俺", image: "boy", text: "実は…その…伝えたいことがあって！" },
+      { name: "西条さん", image: "girl", text: "えっ、なに？" },
+      { name: "俺", image: "boy", text: "ずっと…好きでした！俺と、付き合ってください！" },
+      { name: "西条さん", image: "girl", text: "…" },
+      { name: "俺", image: "boy", text: "（これは…ダメか…！？）" },
+      { name: "西条さん", image: "girl", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…" },
+      { name: "西条さん", image: "girl", text: "私、誰かと付き合う前に、テストをするって決めてるの。" },
+      { name: "俺", image: "boy", text: "テ………テスト！？" },
+      { name: "西条さん", image: "girl", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。" },
+      { name: "俺", image: "boy", text: "わ………わかった！！" }
+    ];
+
+    let index = 0;
+
+    function drawScene() {
+      const current = script[index];
+      const img = images[current.image];
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      // 名前表示（左上のピンク枠に重ねる）
+      ctx.font = "bold 32px sans-serif";
+      ctx.fillStyle = "black";
+      ctx.fillText(current.name, 100, 815);  // ←ここで表示位置微調整
+
+      // セリフ本文（下部の白帯に）
+      ctx.font = "32px sans-serif";
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 4;
+      ctx.strokeText(current.text, 100, 910);
+      ctx.fillStyle = "black";
+      ctx.fillText(current.text, 100, 910);
+    }
+
+    function preloadAndStart() {
+      let loaded = 0;
+      const total = Object.keys(images).length;
+      for (const key in images) {
+        images[key].onload = () => {
+          loaded++;
+          if (loaded === total) drawScene();
+        };
+      }
+    }
+
+    canvas.addEventListener("click", () => {
+      index++;
+      if (index < script.length) {
+        drawScene();
+      }
+    });
+
+    preloadAndStart();
+  </script>
 </body>
 </html>
