@@ -2,87 +2,104 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ノベル風ゲーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ビジュアルノベル風ゲーム</title>
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       background: black;
       overflow: hidden;
+      height: 100%;
     }
     canvas {
       display: block;
       margin: 0 auto;
-      background-color: black;
-    }
-    #text {
-      position: absolute;
-      top: 1020px;
-      left: 100px;
-      width: 550px;
-      font-size: 36px;
-      font-weight: bold;
-      color: white;
-      text-shadow: 2px 2px 0 black, -2px 2px 0 black, 2px -2px 0 black, -2px -2px 0 black;
-      line-height: 1.4;
-    }
-    #name {
-      position: absolute;
-      top: 960px;
-      left: 75px;
-      width: 200px;
-      font-size: 26px;
-      font-weight: bold;
-      color: white;
-      text-shadow: 2px 2px 0 black;
+      background: black;
     }
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="750" height="1334"></canvas>
-  <div id="name"></div>
-  <div id="text"></div>
+<canvas id="gameCanvas" width="750" height="1334"></canvas>
 
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
 
-    const scenarios = [
-      { img: "girl.PNG", name: "西条さん", text: "…どうしたの？急に呼び出して" },
-      { img: "boy.PNG", name: "俺", text: "実は…その…伝えたいことがあって！" },
-      { img: "girl.PNG", name: "西条さん", text: "えっ、なに？" },
-      { img: "boy.PNG", name: "俺", text: "ずっと…好きでした！俺と、付き合ってください！" },
-      { img: "girl.PNG", name: "西条さん", text: "…" },
-      { img: "boy.PNG", name: "俺", text: "（これは…ダメか…！？）" },
-      { img: "girl.PNG", name: "西条さん", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…" },
-      { img: "girl.PNG", name: "西条さん", text: "私、誰かと付き合う前に、テストをするって決めてるの。" },
-      { img: "boy.PNG", name: "俺", text: "テ………テスト！？" },
-      { img: "girl.PNG", name: "西条さん", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。" },
-      { img: "boy.PNG", name: "俺", text: "わ………わかった！！" }
-    ];
+  const messages = [
+    { name: "西条さん", text: "…どうしたの？急に呼び出して", image: "girl.PNG" },
+    { name: "俺", text: "実は…その…伝えたいことがあって！", image: "boy.PNG" },
+    { name: "西条さん", text: "えっ、なに？", image: "girl.PNG" },
+    { name: "俺", text: "ずっと…好きでした！俺と、付き合ってください！", image: "boy.PNG" },
+    { name: "西条さん", text: "…", image: "girl.PNG" },
+    { name: "俺", text: "（これは…ダメか…！？）", image: "boy.PNG" },
+    { name: "西条さん", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…", image: "girl.PNG" },
+    { name: "西条さん", text: "私、誰かと付き合う前に、テストをするって決めてるの。", image: "girl.PNG" },
+    { name: "俺", text: "テ………テスト！？", image: "boy.PNG" },
+    { name: "西条さん", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。", image: "girl.PNG" },
+    { name: "俺", text: "わ………わかった！！", image: "boy.PNG" }
+  ];
 
-    let current = 0;
-    const image = new Image();
+  let currentIndex = 0;
+  let currentImage = new Image();
 
-    function drawScene() {
-      const scene = scenarios[current];
-      image.src = scene.img;
-      image.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(image, 0, 0, 750, 1334);
-        document.getElementById("name").textContent = scene.name;
-        document.getElementById("text").textContent = scene.text;
-      };
-    }
+  function drawScene() {
+    const data = messages[currentIndex];
 
-    canvas.addEventListener("click", () => {
-      current++;
-      if (current < scenarios.length) {
-        drawScene();
+    currentImage.src = data.image;
+    currentImage.onload = () => {
+      // 上下66pxをカットして描画（頭を見せるため）
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(currentImage, 0, 66, 750, 1202, 0, 0, canvas.width, canvas.height);
+
+      // 名前欄
+      ctx.font = "bold 28px sans-serif";
+      ctx.fillStyle = "white";
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 4;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      ctx.strokeText(data.name, 40, 980 - 66); // 調整
+      ctx.fillText(data.name, 40, 980 - 66);
+
+      // セリフ本文
+      ctx.font = "36px sans-serif";
+      const lines = wrapText(data.text, 620, ctx);
+      lines.forEach((line, i) => {
+        const y = 1040 - 66 + i * 45;
+        ctx.strokeText(line, 40, y);
+        ctx.fillText(line, 40, y);
+      });
+    };
+  }
+
+  function wrapText(text, maxWidth, context) {
+    const words = text.split("");
+    const lines = [];
+    let line = "";
+    for (let i = 0; i < words.length; i++) {
+      const testLine = line + words[i];
+      const metrics = context.measureText(testLine);
+      if (metrics.width > maxWidth && i > 0) {
+        lines.push(line);
+        line = words[i];
+      } else {
+        line = testLine;
       }
-    });
+    }
+    lines.push(line);
+    return lines;
+  }
 
+  canvas.addEventListener('click', () => {
+    currentIndex++;
+    if (currentIndex >= messages.length) {
+      currentIndex = 0;
+    }
     drawScene();
-  </script>
+  });
+
+  drawScene();
+</script>
 </body>
 </html>
