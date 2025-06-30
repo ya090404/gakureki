@@ -2,11 +2,11 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>告白シーン</title>
+  <title>告白イベント</title>
   <style>
     body {
       margin: 0;
-      background-color: black;
+      background: black;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -17,83 +17,146 @@
       position: relative;
       width: 768px;
       height: 1024px;
-      background-size: cover;
-      background-position: center;
+      background-color: black;
     }
 
-    .dialogue-box {
+    #background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    #girl {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      z-index: 1;
+    }
+
+    #face-icon {
+      position: absolute;
+      bottom: 190px;
+      left: 30px;
+      width: 120px;
+      height: auto;
+      display: none;
+      z-index: 2;
+    }
+
+    #serihu-box {
       position: absolute;
       bottom: 0;
       width: 100%;
-      height: 200px;
-      background: transparent;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-    }
-
-    .name {
-      font-weight: bold;
-      font-size: 20px;
-      padding: 5px 20px;
-      color: white;
-    }
-
-    .text {
-      font-size: 22px;
-      padding: 10px 20px;
-      color: black;
-      background: rgba(255, 255, 255, 0.9);
-      margin: 0 20px 20px 20px;
-      border-radius: 10px;
-    }
-
-    #boy-face {
-      position: absolute;
-      bottom: 200px;
-      left: 0;
-      width: 150px;
       height: auto;
+      z-index: 3;
+    }
+
+    #serihu-img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    #name {
+      position: absolute;
+      bottom: 150px;
+      left: 80px;
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+      z-index: 4;
+    }
+
+    #text {
+      position: absolute;
+      bottom: 60px;
+      left: 80px;
+      right: 80px;
+      font-size: 22px;
+      line-height: 1.6;
+      color: black;
+      z-index: 4;
+      word-break: break-word;
+    }
+
+    #click-to-continue {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      font-size: 16px;
+      color: white;
+      opacity: 0.6;
+      z-index: 5;
     }
   </style>
 </head>
 <body>
   <div id="container">
-    <img id="background" src="/mnt/data/1A48B595-7E02-4CD1-A3D6-36A0DBE2A117.jpeg" alt="背景" style="width: 100%; height: 100%; object-fit: cover; position: absolute;">
+    <!-- ✅ 正しい背景 -->
+    <img id="background" src="haikei.PNG" alt="背景">
 
-    <img id="boy-face" src="/mnt/data/4CA81F1F-E0C3-46B2-8CA5-D20DDBFED412.jpeg" style="display: none;">
+    <!-- ✅ 女の子立ち絵（常時表示） -->
+    <img id="girl" src="girl.PNG" alt="女の子">
 
-    <div class="dialogue-box">
-      <div class="name" id="name">女の子</div>
-      <div class="text" id="text">…どうしたの？急に呼び出して</div>
+    <!-- ✅ 主人公の顔（セリフ時のみ表示） -->
+    <img id="face-icon" src="boy.PNG" alt="主人公アイコン">
+
+    <!-- ✅ セリフ背景 -->
+    <div id="serihu-box">
+      <img id="serihu-img" src="serihu.PNG" alt="セリフ背景">
     </div>
+
+    <!-- ✅ テキスト（名前・セリフ） -->
+    <div id="name">女の子</div>
+    <div id="text">…どうしたの？急に呼び出して</div>
+    <div id="click-to-continue">▶クリックで進む</div>
   </div>
 
   <script>
-    // true: 女の子, false: 主人公
-    let isGirlSpeaking = true;
+    const script = [
+      { name: "女の子", text: "…どうしたの？急に呼び出して", speaker: "girl" },
+      { name: "主人公", text: "実は…その…伝えたいことがあって！", speaker: "boy" },
+      { name: "女の子", text: "えっ、なに？", speaker: "girl" },
+      { name: "主人公", text: "ずっと…好きでした！俺と、付き合ってください！", speaker: "boy" },
+      { name: "女の子", text: "…", speaker: "girl" },
+      { name: "主人公", text: "（これは…ダメか…！？）", speaker: "boy" },
+      { name: "女の子", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…", speaker: "girl" },
+      { name: "女の子", text: "私、誰かと付き合う前に、テストをするって決めてるの。", speaker: "girl" },
+      { name: "主人公", text: "テ………テスト！？", speaker: "boy" },
+      { name: "女の子", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。", speaker: "girl" },
+      { name: "主人公", text: "わ………わかった！！", speaker: "boy" }
+    ];
 
-    function setDialogue(name, text, showBoyFace) {
-      document.getElementById('name').textContent = name;
-      document.getElementById('text').textContent = text;
+    let index = 0;
 
-      if (showBoyFace) {
-        document.getElementById('boy-face').style.display = 'block';
-        document.getElementById('background').src = "/mnt/data/4CA81F1F-E0C3-46B2-8CA5-D20DDBFED412.jpeg";
+    function showLine(line) {
+      document.getElementById('name').textContent = line.name;
+      document.getElementById('text').textContent = line.text;
+
+      const face = document.getElementById('face-icon');
+      if (line.speaker === "boy") {
+        face.style.display = "block";
       } else {
-        document.getElementById('boy-face').style.display = 'none';
-        document.getElementById('background').src = "/mnt/data/1A48B595-7E02-4CD1-A3D6-36A0DBE2A117.jpeg";
+        face.style.display = "none";
       }
     }
 
-    // セリフ切り替え例
-    setTimeout(() => {
-      setDialogue("主人公", "実は…その…伝えたいことがあって！", true);
-    }, 2000);
+    document.getElementById('container').addEventListener('click', () => {
+      index++;
+      if (index < script.length) {
+        showLine(script[index]);
+      }
+    });
 
-    setTimeout(() => {
-      setDialogue("女の子", "えっ、なに？", false);
-    }, 5000);
+    showLine(script[0]);
   </script>
 </body>
 </html>
