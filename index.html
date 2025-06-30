@@ -6,7 +6,7 @@
   <style>
     body {
       margin: 0;
-      background: black;
+      background-color: black;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -17,65 +17,51 @@
       position: relative;
       width: 768px;
       height: 1024px;
-      background-color: black;
-    }
-
-    #background {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
+      background-size: cover;
+      background-position: center;
     }
 
     .dialogue-box {
       position: absolute;
       bottom: 0;
       width: 100%;
+      height: 200px;
+      background: transparent;
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      padding: 0 20px 20px 20px;
-      box-sizing: border-box;
-      pointer-events: none;
+      justify-content: flex-start;
     }
 
     .name {
-      background: #f7a6c2;
-      color: white;
-      font-size: 20px;
       font-weight: bold;
-      padding: 6px 14px;
-      border-radius: 20px;
-      margin-bottom: 10px;
-      min-width: 120px;
-      text-align: center;
+      font-size: 20px;
+      padding: 5px 20px;
+      color: white;
     }
 
     .text {
-      background: white;
-      color: black;
       font-size: 22px;
-      line-height: 1.4;
-      padding: 14px;
+      padding: 10px 20px;
+      color: black;
+      background: rgba(255, 255, 255, 0.9);
+      margin: 0 20px 20px 20px;
       border-radius: 10px;
-      width: 100%;
-      min-height: 80px;
     }
 
-    #face-icon {
+    #boy-face {
       position: absolute;
-      bottom: 220px;
-      left: 20px;
-      width: 120px;
+      bottom: 200px;
+      left: 0;
+      width: 150px;
       height: auto;
-      display: none;
     }
   </style>
 </head>
 <body>
   <div id="container">
-    <img id="background" src="girl.PNG" alt="背景">
-    <img id="face-icon" src="boy.PNG" alt="顔アイコン">
+    <img id="background" src="/mnt/data/1A48B595-7E02-4CD1-A3D6-36A0DBE2A117.jpeg" alt="背景" style="width: 100%; height: 100%; object-fit: cover; position: absolute;">
+
+    <img id="boy-face" src="/mnt/data/4CA81F1F-E0C3-46B2-8CA5-D20DDBFED412.jpeg" style="display: none;">
 
     <div class="dialogue-box">
       <div class="name" id="name">女の子</div>
@@ -84,30 +70,29 @@
   </div>
 
   <script>
-    // キャラのセリフ切り替え関数
-    function setDialogue(name, text, speaker) {
+    // true: 女の子, false: 主人公
+    let isGirlSpeaking = true;
+
+    function setDialogue(name, text, showBoyFace) {
       document.getElementById('name').textContent = name;
       document.getElementById('text').textContent = text;
 
-      const bg = document.getElementById('background');
-      const face = document.getElementById('face-icon');
-
-      if (speaker === 'boy') {
-        bg.src = "boy.PNG";
-        face.style.display = 'block';
+      if (showBoyFace) {
+        document.getElementById('boy-face').style.display = 'block';
+        document.getElementById('background').src = "/mnt/data/4CA81F1F-E0C3-46B2-8CA5-D20DDBFED412.jpeg";
       } else {
-        bg.src = "girl.PNG";
-        face.style.display = 'none';
+        document.getElementById('boy-face').style.display = 'none';
+        document.getElementById('background').src = "/mnt/data/1A48B595-7E02-4CD1-A3D6-36A0DBE2A117.jpeg";
       }
     }
 
-    // セリフ切り替えの例（時間差で切り替える）
+    // セリフ切り替え例
     setTimeout(() => {
-      setDialogue("主人公", "実は…その…伝えたいことがあって！", "boy");
+      setDialogue("主人公", "実は…その…伝えたいことがあって！", true);
     }, 2000);
 
     setTimeout(() => {
-      setDialogue("女の子", "えっ、なに？", "girl");
+      setDialogue("女の子", "えっ、なに？", false);
     }, 5000);
   </script>
 </body>
