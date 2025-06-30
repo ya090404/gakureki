@@ -14,11 +14,11 @@
     }
     #wrapper {
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 50%;
+      left: 50%;
       width: 750px;
       height: 1334px;
-      transform-origin: top left;
+      transform: translate(-50%, -50%) scale(1);
     }
     canvas {
       position: absolute;
@@ -34,7 +34,7 @@
       pointer-events: none;
     }
     #name {
-      top: 960px;
+      top: 940px;  /* ← 少しだけ上にした */
       left: 75px;
       font-size: 26px;
       width: 200px;
@@ -81,7 +81,7 @@
         window.innerWidth / 750,
         window.innerHeight / 1334
       );
-      wrapper.style.transform = `scale(${scale})`;
+      wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
     }
 
     let current = 0;
