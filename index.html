@@ -28,7 +28,7 @@
       background: black;
       display: block;
     }
-    #name, #text {
+    .overlay {
       position: absolute;
       color: white;
       font-weight: bold;
@@ -36,26 +36,13 @@
       font-family: sans-serif;
       pointer-events: none;
     }
-    #name {
-      font-size: 20px;
-      top: 960px;
-      left: 75px;
-      width: 200px;
-    }
-    #text {
-      font-size: 28px;
-      top: 1020px;
-      left: 100px;
-      width: 550px;
-      line-height: 1.4;
-    }
   </style>
 </head>
 <body>
   <div id="wrapper">
     <canvas id="gameCanvas" width="750" height="1334"></canvas>
-    <div id="name"></div>
-    <div id="text"></div>
+    <div id="name" class="overlay"></div>
+    <div id="text" class="overlay"></div>
   </div>
 
   <script>
@@ -81,8 +68,23 @@
     const baseWidth = 750;
     const baseHeight = 1334;
 
-    let current = 0;
-    const image = new Image();
+    function scaleOverlay() {
+      const canvasRect = canvas.getBoundingClientRect();
+      const scaleX = canvasRect.width / baseWidth;
+      const scaleY = canvasRect.height / baseHeight;
+
+      // セリフ
+      textBox.style.left = `${100 * scaleX + canvasRect.left}px`;
+      textBox.style.top = `${1020 * scaleY + canvasRect.top}px`;
+      textBox.style.fontSize = `${36 * scaleY}px`;
+      textBox.style.width = `${550 * scaleX}px`;
+
+      // 名前
+      nameBox.style.left = `${75 * scaleX + canvasRect.left}px`;
+      nameBox.style.top = `${960 * scaleY + canvasRect.top}px`;
+      nameBox.style.fontSize = `${26 * scaleY}px`;
+      nameBox.style.width = `${200 * scaleX}px`;
+    }
 
     function drawScene() {
       const scene = scenarios[current];
@@ -92,8 +94,12 @@
         ctx.drawImage(image, 0, 0, baseWidth, baseHeight);
         nameBox.textContent = scene.name;
         textBox.textContent = scene.text;
+        scaleOverlay();
       };
     }
+
+    let current = 0;
+    const image = new Image();
 
     canvas.addEventListener("click", () => {
       current++;
@@ -101,6 +107,8 @@
         drawScene();
       }
     });
+
+    window.addEventListener("resize", scaleOverlay);
 
     drawScene();
   </script>
