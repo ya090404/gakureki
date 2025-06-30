@@ -48,7 +48,7 @@
       width: 550px;
       line-height: 1.4;
     }
-    #map {
+    #map, #koreImage {
       position: absolute;
       top: 500px;
       left: 50%;
@@ -87,18 +87,30 @@
     }
     #inputArea {
       position: absolute;
-      top: 880px;
+      top: 780px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 3;
+      display: flex;
+      gap: 10px;
     }
     #answerInput {
-      width: 500px;
+      width: 400px;
       height: 60px;
       font-size: 28px;
       border: 2px solid pink;
       padding: 5px;
       box-sizing: border-box;
+    }
+    #submitAnswer {
+      width: 120px;
+      height: 60px;
+      font-size: 24px;
+      font-weight: bold;
+      background: pink;
+      color: blue;
+      border: none;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -106,6 +118,7 @@
   <div id="wrapper">
     <canvas id="gameCanvas" width="750" height="1334"></canvas>
     <img id="map" src="4koku.PNG" />
+    <img id="koreImage" src="kore.PNG" />
     <div id="name" class="overlay"></div>
     <div id="text" class="overlay"></div>
     <div id="fade"></div>
@@ -115,6 +128,7 @@
     <button id="btn4" class="quiz-button hidden">高知県</button>
     <div id="inputArea" class="hidden">
       <input id="answerInput" type="text" placeholder="ひらがなで入力してね" />
+      <button id="submitAnswer">答える</button>
     </div>
   </div>
 
@@ -126,8 +140,10 @@
     const textBox = document.getElementById("text");
     const fade = document.getElementById("fade");
     const mapImage = document.getElementById("map");
+    const koreImage = document.getElementById("koreImage");
     const inputArea = document.getElementById("inputArea");
     const answerInput = document.getElementById("answerInput");
+    const submitAnswer = document.getElementById("submitAnswer");
     const buttons = [
       document.getElementById("btn1"),
       document.getElementById("btn2"),
@@ -192,8 +208,25 @@
         ctx.clearRect(0, 0, 750, 1334);
         ctx.drawImage(image, 0, 0, 750, 1334);
         nameBox.textContent = "西条さん";
-        textBox.textContent = "第二問:「 ？ 」をひらがなで埋めてね\n「   ？    」竹取の翁といふものありけり。野山にまじりて、竹をとりつゝ、よろづの事につかひけり。";
+        textBox.textContent = "第二問:「 ？ 」をひらがなで埋めてね\n「   ？    」竹取の翁といふものありけり。";
         inputArea.classList.remove("hidden");
+      };
+    }
+
+    function startQuiz3() {
+      inputArea.classList.add("hidden");
+      image.src = "girl.PNG";
+      image.onload = () => {
+        ctx.clearRect(0, 0, 750, 1334);
+        ctx.drawImage(image, 0, 0, 750, 1334);
+        nameBox.textContent = "西条さん";
+        textBox.textContent = "第3問：これの名前は？";
+        koreImage.style.display = "block";
+        buttons[0].textContent = "コップ";
+        buttons[1].textContent = "ししおどし";
+        buttons[2].textContent = "ホチキス";
+        buttons[3].textContent = "クリップ";
+        buttons.forEach(btn => btn.classList.remove("hidden"));
       };
     }
 
@@ -211,21 +244,23 @@
       }
     });
 
-    buttons.forEach((btn, index) => {
+    buttons.forEach((btn) => {
       btn.addEventListener("click", () => {
         if (btn.textContent === "愛媛県") score++;
-        startQuiz2();
+        else if (btn.textContent === "クリップ") score++;
+        if (koreImage.style.display === "block") {
+          koreImage.style.display = "none";
+          alert("結果へ進みます（仮）");
+        } else {
+          startQuiz2();
+        }
       });
     });
 
-    answerInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        const ans = answerInput.value.trim();
-        if (ans === "いまはむかし") score++;
-        inputArea.classList.add("hidden");
-        // 次の問題へ（仮）
-        alert("次へ（ここに第3問）");
-      }
+    submitAnswer.addEventListener("click", () => {
+      const ans = answerInput.value.trim();
+      if (ans === "いまはむかし") score++;
+      startQuiz3();
     });
 
     window.addEventListener("resize", resize);
