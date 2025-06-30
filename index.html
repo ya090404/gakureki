@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>好きなあの子に告白したら慎重すぎた件について</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+    }
+    canvas {
+      display: block;
+      margin: auto;
+      background: black;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="768" height="1024"></canvas>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const assets = {
+      background: "haikei.PNG",
+      girl: "girl.PNG",
+      protagonist: "boy.PNG",
+      textbox: "serihu.PNG"
+    };
+
+    const dialogue = [
+      { speaker: "girl", text: "…どうしたの？急に呼び出して" },
+      { speaker: "protagonist", text: "実は…その…伝えたいことがあって！" },
+      { speaker: "girl", text: "えっ、なに？" },
+      { speaker: "protagonist", text: "ずっと…好きでした！俺と、付き合ってください！" },
+      { speaker: "girl", text: "…" },
+      { speaker: "protagonist", text: "（これは…ダメか…！？）" },
+      { speaker: "girl", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…" },
+      { speaker: "girl", text: "私、誰かと付き合う前に、テストをするって決めてるの。" },
+      { speaker: "protagonist", text: "テ………テスト！？" },
+      { speaker: "girl", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。" },
+      { speaker: "protagonist", text: "わ………わかった！！" }
+    ];
+
+    let images = {};
+    let currentLine = 0;
+
+    function loadImages(callback) {
+      let loaded = 0;
+      const total = Object.keys(assets).length;
+
+      for (const key in assets) {
+        const img = new Image();
+        img.src = assets[key];
+        img.onload = () => {
+          images[key] = img;
+          loaded++;
+          if (loaded === total) callback();
+        };
+      }
+    }
+
+    function drawScene() {
+      const line = dialogue[currentLine];
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 背景
+      ctx.drawImage(images.background, 0, 0, canvas.width, canvas.height);
+
+      // 女の子立ち絵（常に中央）
+      ctx.drawImage(images.girl, canvas.width / 2 - 150, 150, 300, 600);
+
+      // 主人公の顔（必要なときだけ）
+      if (line.speaker === "protagonist") {
+        ctx.drawImage(images.protagonist, 30, canvas.height - 200, 120, 120);
+      }
+
+      // テキストボックス
+      ctx.drawImage(images.textbox, 0, canvas.height - 250, canvas.width, 250);
+
+      // セリフ文字
+      ctx.font = "28px sans-serif";
+      ctx.fillStyle = "black";
+      ctx.fillText(
+        line.speaker === "girl" ? "女の子" : "俺",
+        40,
+        canvas.height - 210
+      );
+
+      // セリフ本体（自動で折り返し処理）
+      drawMultilineText(line.text, 40, canvas.height - 160, canvas.width - 80, 36);
+    }
+
+    function drawMultilineText(text, x, y, maxWidth, lineHeight) {
+      const words = text.split("");
+      let line = "";
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i];
+        const testWidth = ctx.measureText(testLine).width;
+        if (testWidth > maxWidth && line.length > 0) {
+          ctx.fillText(line, x, y);
+          line = words[i];
+          y += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, x, y);
+    }
+
+    canvas.addEventListener("click", () => {
+      currentLine++;
+      if (currentLine >= dialogue.length) {
+        console.log("次はクイズへ！ここから分岐処理へ進む");
+        // → ここでクイズ画面へ切り替える処理をあとで追加する
+        return;
+      }
+      drawScene();
+    });
+
+    loadImages(drawScene);
+  </script>
+</body>
+</html>
