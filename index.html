@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -44,16 +45,14 @@
     #text {
       top: 1020px;
       left: 100px;
-      font-size: 36px;
+      font-size: 30px;
       width: 550px;
       line-height: 1.4;
-    }
-    .small-text {
-      font-size: 28px !important;
+      white-space: pre-line;
     }
     #map {
       position: absolute;
-      top: 600px;
+      top: 360px;
       left: 50%;
       transform: translateX(-50%);
       max-width: 80%;
@@ -77,6 +76,17 @@
     #btn2 { top: 1080px; left: 410px; }
     #btn3 { top: 1180px; left: 100px; }
     #btn4 { top: 1180px; left: 410px; }
+    #inputBox {
+      position: absolute;
+      top: 1150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 500px;
+      font-size: 28px;
+      padding: 10px;
+      display: none;
+      z-index: 4;
+    }
     .hidden {
       display: none;
     }
@@ -98,14 +108,13 @@
     <img id="map" src="4koku.PNG" />
     <div id="name" class="overlay"></div>
     <div id="text" class="overlay"></div>
+    <input id="inputBox" type="text" placeholder="ひらがなで入力してね" />
     <div id="fade"></div>
-
     <button id="btn1" class="quiz-button hidden">徳島県</button>
     <button id="btn2" class="quiz-button hidden">香川県</button>
     <button id="btn3" class="quiz-button hidden">愛媛県</button>
     <button id="btn4" class="quiz-button hidden">高知県</button>
   </div>
-
   <script>
     const wrapper = document.getElementById("wrapper");
     const canvas = document.getElementById("gameCanvas");
@@ -114,6 +123,7 @@
     const textBox = document.getElementById("text");
     const fade = document.getElementById("fade");
     const mapImage = document.getElementById("map");
+    const inputBox = document.getElementById("inputBox");
     const buttons = [
       document.getElementById("btn1"),
       document.getElementById("btn2"),
@@ -135,16 +145,14 @@
       { img: "boy.PNG", name: "俺", text: "わ………わかった！！" }
     ];
 
-    function resize() {
-      const scale = Math.min(
-        window.innerWidth / 750,
-        window.innerHeight / 1334
-      );
-      wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    }
-
+    let correctCount = 0;
     let current = 0;
     const image = new Image();
+
+    function resize() {
+      const scale = Math.min(window.innerWidth / 750, window.innerHeight / 1334);
+      wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    }
 
     function drawScene() {
       const scene = scenarios[current];
@@ -153,21 +161,34 @@
         ctx.clearRect(0, 0, 750, 1334);
         ctx.drawImage(image, 0, 0, 750, 1334);
         nameBox.textContent = scene.name;
-        textBox.classList.remove("small-text");
         textBox.textContent = scene.text;
       };
     }
 
-    function startQuiz() {
-      ctx.clearRect(0, 0, 750, 1334);
+    function startQuiz1() {
       image.src = "girl.PNG";
       image.onload = () => {
+        ctx.clearRect(0, 0, 750, 1334);
         ctx.drawImage(image, 0, 0, 750, 1334);
         nameBox.textContent = "西条さん";
-        textBox.classList.add("small-text");
         textBox.textContent = "日本地図:この県はどこ？";
         mapImage.style.display = "block";
         buttons.forEach(btn => btn.classList.remove("hidden"));
+      };
+    }
+
+    function startQuiz2() {
+      image.src = "girl.PNG";
+      image.onload = () => {
+        ctx.clearRect(0, 0, 750, 1334);
+        ctx.drawImage(image, 0, 0, 750, 1334);
+        nameBox.textContent = "西条さん";
+        textBox.textContent = `第二問：「 ？ 」をひらがなで埋めてね
+「   ？    」竹取の翁といふものありけり。
+野山にまじりて、竹をとりつゝ、よろづの事につかひけり。
+（『竹取物語』）`;
+        inputBox.style.display = "block";
+        inputBox.focus();
       };
     }
 
@@ -179,20 +200,31 @@
         fade.style.opacity = 1;
         setTimeout(() => {
           fade.style.opacity = 0;
-          startQuiz();
+          startQuiz1();
         }, 1000);
       }
     });
 
     buttons.forEach(btn => {
       btn.addEventListener("click", () => {
-        alert("選択肢がクリックされました（判定は後ほど）");
-        // 次の処理は後日追加
+        if (btn.textContent === "香川県") correctCount++;
+        mapImage.style.display = "none";
+        buttons.forEach(b => b.classList.add("hidden"));
+        startQuiz2();
       });
     });
 
-    window.addEventListener("resize", resize);
+    inputBox.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        const answer = inputBox.value.trim();
+        if (answer === "いまはむかし") correctCount++;
+        inputBox.style.display = "none";
+        inputBox.value = "";
+        alert("次の問題または判定処理へ（ここで切り替え）");
+      }
+    });
 
+    window.addEventListener("resize", resize);
     resize();
     drawScene();
   </script>
