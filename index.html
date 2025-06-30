@@ -2,163 +2,133 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>告白イベント</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>告白シーン</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: black;
       height: 100%;
-    }
-
-    #container {
-      position: relative;
-      width: 100vw;
-      max-width: 768px;
-      aspect-ratio: 3 / 4;
-      margin: 0 auto;
-      background-color: black;
+      background: black;
       overflow: hidden;
     }
 
-    #background, #girl {
+    #game {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: black;
+    }
+
+    .background {
       position: absolute;
       width: 100%;
       height: 100%;
-      top: 0;
-      left: 0;
       object-fit: cover;
       z-index: 0;
     }
 
-    #serihu-box {
+    .character {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 90%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .textbox {
       position: absolute;
       bottom: 0;
       width: 100%;
       z-index: 2;
     }
 
-    #serihu-img {
+    .textbox img {
       width: 100%;
       height: auto;
       display: block;
     }
 
-    #face-icon {
+    .name {
       position: absolute;
-      bottom: 42px;
-      left: 35px;
-      width: 95px;
-      display: none;
+      left: 12%;
+      bottom: 21%;
+      transform: translateY(-50%);
+      color: black;
+      font-size: 3.5vw;
+      font-weight: bold;
+      white-space: nowrap;
       z-index: 3;
     }
 
-    .text-layer {
+    .face {
       position: absolute;
-      bottom: 0;
-      width: 100%;
-      height: 200px;
-      z-index: 4;
-      pointer-events: none;
+      left: 6.2%;
+      bottom: 5%;
+      width: 10vw;
+      height: auto;
+      z-index: 3;
     }
 
-    #name {
+    .serif {
       position: absolute;
-      bottom: 144px;
-      left: 130px;
-      font-size: 22px;
-      font-weight: bold;
+      left: 22%;
+      bottom: 5%;
+      width: 70%;
+      font-size: 3.5vw;
       color: black;
-      text-shadow: 1px 1px 0 white, -1px -1px 0 white,
-                   -1px 1px 0 white, 1px -1px 0 white;
+      text-shadow: 1px 1px 2px white, -1px -1px 2px white;
+      z-index: 3;
     }
 
-    #text {
-      position: absolute;
-      bottom: 45px;
-      left: 160px;
-      right: 50px;
-      font-size: 24px;
-      line-height: 1.6;
-      color: black;
-      text-shadow: 1px 1px 0 white, -1px -1px 0 white,
-                   -1px 1px 0 white, 1px -1px 0 white;
-      white-space: pre-line;
-    }
-
-    #click-to-continue {
-      position: absolute;
-      bottom: 10px;
-      right: 20px;
-      font-size: 14px;
-      color: white;
-      opacity: 0.6;
-      z-index: 5;
+    @media (min-width: 768px) {
+      .name {
+        font-size: 24px;
+      }
+      .serif {
+        font-size: 24px;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="container">
-    <img id="background" src="haikei.PNG" alt="背景">
-    <img id="girl" src="girl.PNG" alt="女の子">
-    <img id="face-icon" src="boy.PNG" alt="主人公アイコン">
-
-    <div id="serihu-box">
-      <img id="serihu-img" src="serihu.PNG" alt="セリフ背景">
+  <div id="game" onclick="nextDialogue()">
+    <img src="haikei.PNG" class="background" />
+    <img src="girl.PNG" class="character" />
+    <div class="textbox">
+      <img src="serihu.PNG" />
+      <img id="face" src="boy.PNG" class="face" />
+      <div id="name" class="name">西条さん</div>
+      <div id="serif" class="serif">…どうしたの？急に呼び出して</div>
     </div>
-
-    <div class="text-layer">
-      <div id="name">西条さん</div>
-      <div id="text">…どうしたの？急に呼び出して</div>
-    </div>
-
-    <div id="click-to-continue">▶クリックで進む</div>
   </div>
 
   <script>
-    const script = [
-      { name: "西条さん", text: "…どうしたの？急に呼び出して", speaker: "girl" },
-      { name: "俺", text: "実は…その…伝えたいことがあって！", speaker: "boy" },
-      { name: "西条さん", text: "えっ、なに？", speaker: "girl" },
-      { name: "俺", text: "ずっと…好きでした！俺と、付き合ってください！", speaker: "boy" },
-      { name: "西条さん", text: "…", speaker: "girl" },
-      { name: "俺", text: "（これは…ダメか…！？）", speaker: "boy" },
-      { name: "西条さん", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…", speaker: "girl" },
-      { name: "西条さん", text: "私、誰かと付き合う前に、テストをするって決めてるの。", speaker: "girl" },
-      { name: "俺", text: "テ………テスト！？", speaker: "boy" },
-      { name: "西条さん", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。", speaker: "girl" },
-      { name: "俺", text: "わ………わかった！！", speaker: "boy" }
+    const dialogues = [
+      { name: "西条さん", text: "…どうしたの？急に呼び出して", face: "boy.PNG" },
+      { name: "俺", text: "実は…その…伝えたいことがあって！", face: "boy.PNG" },
+      { name: "西条さん", text: "えっ、なに？", face: "boy.PNG" },
+      { name: "俺", text: "ずっと…好きでした！俺と、付き合ってください！", face: "boy.PNG" },
+      { name: "西条さん", text: "…", face: "boy.PNG" },
+      { name: "俺", text: "(これは…ダメか…！？)", face: "boy.PNG" },
+      { name: "西条さん", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…", face: "boy.PNG" },
+      { name: "西条さん", text: "私、誰かと付き合う前に、テストをするって決めてるの。", face: "boy.PNG" },
+      { name: "俺", text: "テ………テスト！？", face: "boy.PNG" },
+      { name: "西条さん", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。", face: "boy.PNG" },
+      { name: "俺", text: "わ………わかった！！", face: "boy.PNG" }
     ];
 
-    let index = 0;
-
-    function showLine(line) {
-      const face = document.getElementById('face-icon');
-      const text = document.getElementById('text');
-      const name = document.getElementById('name');
-
-      name.textContent = line.name;
-      text.textContent = line.text;
-
-      if (line.speaker === "boy") {
-        face.style.display = "block";
-        name.style.left = "130px"; // 顔を避けた場所に名前
-        text.style.left = "160px"; // 顔を避けて右寄りにセリフ
-      } else {
-        face.style.display = "none";
-        name.style.left = "85px";
-        text.style.left = "120px";
+    let current = 0;
+    function nextDialogue() {
+      current++;
+      if (current < dialogues.length) {
+        document.getElementById("name").innerText = dialogues[current].name;
+        document.getElementById("serif").innerText = dialogues[current].text;
+        document.getElementById("face").src = dialogues[current].face;
       }
     }
-
-    document.getElementById('container').addEventListener('click', () => {
-      index++;
-      if (index < script.length) {
-        showLine(script[index]);
-      }
-    });
-
-    showLine(script[0]);
   </script>
 </body>
 </html>
