@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -31,7 +30,7 @@
       position: absolute;
       color: white;
       font-weight: bold;
-      text-shadow: 2px 2px 0 black, -2px 2px 0 black, 2px -2px 0 black, -2px -2px 0 black;
+      text-shadow: 2px 2px 0 black;
       font-family: sans-serif;
       pointer-events: none;
       z-index: 2;
@@ -48,11 +47,10 @@
       font-size: 30px;
       width: 550px;
       line-height: 1.4;
-      white-space: pre-line;
     }
     #map {
       position: absolute;
-      top: 360px;
+      top: 230px;
       left: 50%;
       transform: translateX(-50%);
       max-width: 80%;
@@ -76,17 +74,6 @@
     #btn2 { top: 1080px; left: 410px; }
     #btn3 { top: 1180px; left: 100px; }
     #btn4 { top: 1180px; left: 410px; }
-    #inputBox {
-      position: absolute;
-      top: 1150px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 500px;
-      font-size: 28px;
-      padding: 10px;
-      display: none;
-      z-index: 4;
-    }
     .hidden {
       display: none;
     }
@@ -100,21 +87,34 @@
       z-index: 10;
       pointer-events: none;
     }
+    #answerInput {
+      position: absolute;
+      top: 1100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 400px;
+      font-size: 28px;
+      padding: 10px;
+      z-index: 4;
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div id="wrapper">
     <canvas id="gameCanvas" width="750" height="1334"></canvas>
     <img id="map" src="4koku.PNG" />
+    <input type="text" id="answerInput" placeholder="ひらがなで入力してね" />
     <div id="name" class="overlay"></div>
     <div id="text" class="overlay"></div>
-    <input id="inputBox" type="text" placeholder="ひらがなで入力してね" />
     <div id="fade"></div>
+
     <button id="btn1" class="quiz-button hidden">徳島県</button>
     <button id="btn2" class="quiz-button hidden">香川県</button>
     <button id="btn3" class="quiz-button hidden">愛媛県</button>
     <button id="btn4" class="quiz-button hidden">高知県</button>
   </div>
+
   <script>
     const wrapper = document.getElementById("wrapper");
     const canvas = document.getElementById("gameCanvas");
@@ -123,13 +123,15 @@
     const textBox = document.getElementById("text");
     const fade = document.getElementById("fade");
     const mapImage = document.getElementById("map");
-    const inputBox = document.getElementById("inputBox");
+    const inputBox = document.getElementById("answerInput");
     const buttons = [
       document.getElementById("btn1"),
       document.getElementById("btn2"),
       document.getElementById("btn3"),
       document.getElementById("btn4")
     ];
+
+    let score = 0;
 
     const scenarios = [
       { img: "girl.PNG", name: "西条さん", text: "…どうしたの？急に呼び出して" },
@@ -145,14 +147,16 @@
       { img: "boy.PNG", name: "俺", text: "わ………わかった！！" }
     ];
 
-    let correctCount = 0;
-    let current = 0;
-    const image = new Image();
-
     function resize() {
-      const scale = Math.min(window.innerWidth / 750, window.innerHeight / 1334);
+      const scale = Math.min(
+        window.innerWidth / 750,
+        window.innerHeight / 1334
+      );
       wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
     }
+
+    let current = 0;
+    const image = new Image();
 
     function drawScene() {
       const scene = scenarios[current];
@@ -166,9 +170,9 @@
     }
 
     function startQuiz1() {
+      ctx.clearRect(0, 0, 750, 1334);
       image.src = "girl.PNG";
       image.onload = () => {
-        ctx.clearRect(0, 0, 750, 1334);
         ctx.drawImage(image, 0, 0, 750, 1334);
         nameBox.textContent = "西条さん";
         textBox.textContent = "日本地図:この県はどこ？";
@@ -178,23 +182,21 @@
     }
 
     function startQuiz2() {
+      ctx.clearRect(0, 0, 750, 1334);
+      mapImage.style.display = "none";
+      buttons.forEach(btn => btn.classList.add("hidden"));
       image.src = "girl.PNG";
       image.onload = () => {
-        ctx.clearRect(0, 0, 750, 1334);
         ctx.drawImage(image, 0, 0, 750, 1334);
         nameBox.textContent = "西条さん";
-        textBox.textContent = `第二問：「 ？ 」をひらがなで埋めてね
-「   ？    」竹取の翁といふものありけり。
-野山にまじりて、竹をとりつゝ、よろづの事につかひけり。
-（『竹取物語』）`;
+        textBox.textContent = "第二問:「 ？ 」をひらがなで埋めてね\n「   ？    」竹取の翁といふものありけり。\n野山にまじりて、竹をとりつゝ、\nよろづの事につかひけり。(『竹取物語』)";
         inputBox.style.display = "block";
-        inputBox.focus();
       };
     }
 
     canvas.addEventListener("click", () => {
-      current++;
       if (current < scenarios.length) {
+        current++;
         drawScene();
       } else if (current === scenarios.length) {
         fade.style.opacity = 1;
@@ -205,26 +207,18 @@
       }
     });
 
-    buttons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (btn.textContent === "香川県") correctCount++;
-        mapImage.style.display = "none";
-        buttons.forEach(b => b.classList.add("hidden"));
-        startQuiz2();
-      });
+    buttons[0].addEventListener("click", () => {
+      score++; // 徳島県が正解
+      startQuiz2();
     });
 
-    inputBox.addEventListener("keydown", e => {
-      if (e.key === "Enter") {
-        const answer = inputBox.value.trim();
-        if (answer === "いまはむかし") correctCount++;
-        inputBox.style.display = "none";
-        inputBox.value = "";
-        alert("次の問題または判定処理へ（ここで切り替え）");
-      }
-    });
+    // 残りの選択肢も即遷移（不正解）
+    buttons[1].addEventListener("click", startQuiz2);
+    buttons[2].addEventListener("click", startQuiz2);
+    buttons[3].addEventListener("click", startQuiz2);
 
     window.addEventListener("resize", resize);
+
     resize();
     drawScene();
   </script>
