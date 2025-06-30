@@ -180,6 +180,7 @@
       image.onload = () => {
         ctx.clearRect(0, 0, 750, 1334);
         ctx.drawImage(image, 0, 0, 750, 1334);
+        
         nameBox.textContent = scene.name;
         textBox.textContent = scene.text;
       };
@@ -190,6 +191,10 @@
       image.onload = () => {
         ctx.clearRect(0, 0, 750, 1334);
         ctx.drawImage(image, 0, 0, 750, 1334);
+        
+        nameBox.textContent = "";
+        textBox.textContent = "";
+    
         nameBox.textContent = "西条さん";
         textBox.InnerHTML = "日本地図:この県はどこ？";
         mapImage.style.display = "block";
