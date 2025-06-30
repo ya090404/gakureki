@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ノベル風ゲーム</title>
+  <title>ノベル風ゲーム＋クイズ</title>
   <style>
     html, body {
       margin: 0;
@@ -24,6 +24,7 @@
       position: absolute;
       top: 0;
       left: 0;
+      z-index: 1;
     }
     .overlay {
       position: absolute;
@@ -32,6 +33,7 @@
       text-shadow: 2px 2px 0 black, -2px 2px 0 black, 2px -2px 0 black, -2px -2px 0 black;
       font-family: sans-serif;
       pointer-events: none;
+      z-index: 2;
     }
     #name {
       top: 940px;
@@ -46,39 +48,59 @@
       width: 550px;
       line-height: 1.4;
     }
-    #fade {
+    #map {
       position: absolute;
-      width: 750px;
-      height: 1334px;
-      background: black;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 1s;
+      top: 200px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 80%;
+      max-height: 300px;
+      z-index: 2;
+      display: none;
     }
     .quiz-button {
       position: absolute;
-      width: 280px;
+      width: 240px;
       height: 80px;
       background-color: pink;
-      border: none;
-      font-size: 28px;
+      color: blue;
       font-weight: bold;
+      font-size: 28px;
+      border: none;
       cursor: pointer;
-      font-family: sans-serif;
+      z-index: 3;
+    }
+    #btn1 { top: 1080px; left: 100px; }
+    #btn2 { top: 1080px; left: 410px; }
+    #btn3 { top: 1180px; left: 100px; }
+    #btn4 { top: 1180px; left: 410px; }
+    .hidden {
+      display: none;
+    }
+    #fade {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: black;
+      opacity: 0;
+      transition: opacity 1s;
+      z-index: 10;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
   <div id="wrapper">
     <canvas id="gameCanvas" width="750" height="1334"></canvas>
+    <img id="map" src="4koku.PNG" />
     <div id="name" class="overlay"></div>
     <div id="text" class="overlay"></div>
     <div id="fade"></div>
-    <!-- クイズ選択肢 -->
-    <button id="btn1" class="quiz-button" style="top: 700px; left: 100px;">徳島県</button>
-    <button id="btn2" class="quiz-button" style="top: 800px; left: 100px;">香川県</button>
-    <button id="btn3" class="quiz-button" style="top: 900px; left: 100px;">愛媛県</button>
-    <button id="btn4" class="quiz-button" style="top: 1000px; left: 100px;">高知県</button>
+
+    <button id="btn1" class="quiz-button hidden">徳島県</button>
+    <button id="btn2" class="quiz-button hidden">香川県</button>
+    <button id="btn3" class="quiz-button hidden">愛媛県</button>
+    <button id="btn4" class="quiz-button hidden">高知県</button>
   </div>
 
   <script>
@@ -88,16 +110,13 @@
     const nameBox = document.getElementById("name");
     const textBox = document.getElementById("text");
     const fade = document.getElementById("fade");
-
+    const mapImage = document.getElementById("map");
     const buttons = [
       document.getElementById("btn1"),
       document.getElementById("btn2"),
       document.getElementById("btn3"),
       document.getElementById("btn4")
     ];
-
-    // 最初はボタン非表示
-    buttons.forEach(btn => btn.style.display = "none");
 
     const scenarios = [
       { img: "girl.PNG", name: "西条さん", text: "…どうしたの？急に呼び出して" },
@@ -114,14 +133,18 @@
     ];
 
     function resize() {
-      const scale = Math.min(window.innerWidth / 750, window.innerHeight / 1334);
+      const scale = Math.min(
+        window.innerWidth / 750,
+        window.innerHeight / 1334
+      );
       wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
     }
 
     let current = 0;
     const image = new Image();
 
-    function drawScene(scene) {
+    function drawScene() {
+      const scene = scenarios[current];
       image.src = scene.img;
       image.onload = () => {
         ctx.clearRect(0, 0, 750, 1334);
@@ -132,45 +155,41 @@
     }
 
     function startQuiz() {
-      // フェードアウト
-      fade.style.opacity = 1;
-      setTimeout(() => {
-        const quizImage = new Image();
-        quizImage.src = "girl.PNG";
-        quizImage.onload = () => {
-          ctx.clearRect(0, 0, 750, 1334);
-          ctx.drawImage(quizImage, 0, 0, 750, 1334);
-
-          // 地図画像の表示
-          const map = new Image();
-          map.src = "4koku.PNG";
-          map.onload = () => {
-            ctx.drawImage(map, (750 - map.width) / 2, 300); // 中央に配置
-          };
-
-          // 問題文と名前
-          nameBox.textContent = "西条さん";
-          textBox.textContent = "この県はどこ？";
-
-          // フェード解除 & ボタン表示
-          fade.style.opacity = 0;
-          buttons.forEach(btn => btn.style.display = "block");
-        };
-      }, 1000);
+      ctx.clearRect(0, 0, 750, 1334);
+      image.src = "girl.PNG";
+      image.onload = () => {
+        ctx.drawImage(image, 0, 0, 750, 1334);
+        nameBox.textContent = "西条さん";
+        textBox.textContent = "「日本地図の問題」\nこの県はどこ？";
+        mapImage.style.display = "block";
+        buttons.forEach(btn => btn.classList.remove("hidden"));
+      };
     }
 
     canvas.addEventListener("click", () => {
       current++;
       if (current < scenarios.length) {
-        drawScene(scenarios[current]);
+        drawScene();
       } else if (current === scenarios.length) {
-        startQuiz();
+        fade.style.opacity = 1;
+        setTimeout(() => {
+          fade.style.opacity = 0;
+          startQuiz();
+        }, 1000);
       }
     });
 
+    buttons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        alert("選択肢がクリックされました（判定は後ほど）");
+        // 次の処理は後日追加
+      });
+    });
+
     window.addEventListener("resize", resize);
+
     resize();
-    drawScene(scenarios[current]);
+    drawScene();
   </script>
 </body>
 </html>
