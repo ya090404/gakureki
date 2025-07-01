@@ -181,6 +181,7 @@
         ctx.clearRect(0, 0, 750, 1334);
         ctx.drawImage(image, 0, 0, 750, 1334);
         nameBox.textContent = scene.name;
+        textBox.style.fontSize = "34px";
         textBox.textContent = scene.text;
       };
     }
@@ -209,7 +210,7 @@
         ctx.clearRect(0, 0, 750, 1334);
         ctx.drawImage(image, 0, 0, 750, 1334);
         nameBox.textContent = "西条さん";
-        textBox.innerHTML = "第二問:「 ？ 」をひらがなで埋めてね<br>「   ？    」竹取の翁といふものありけり。";
+        textBox.innerHTML = "第二問:<br>「 ？ 」をひらがなで埋めてね<br>「   ？    」竹取の翁といふものありけり。";
         inputArea.style.display = "flex";
       };
     }
@@ -231,6 +232,44 @@
       };
     }
 
+    function startQuiz4() {
+      koreImage.style.display = "none";
+      image.src = "girl.PNG";
+      image.onload = () => {
+        ctx.clearRect(0, 0, 750, 1334);
+        ctx.drawImage(image, 0, 0, 750, 1334);
+        nameBox.textContent = "西条さん";
+        textBox.style.fontSize = "28px";
+        textBox.innerHTML = "第4問:<br>A〜Dのうち答えの違うものは？<br><br>" +
+                            "A: He wants to buy __ melon.<br>" +
+                            "B: She is eating __ apple.<br>" +
+                            "C: I ate __ banana.<br>" +
+                            "D: Would you like __ peach?";
+        buttons[0].textContent = "A";
+        buttons[1].textContent = "B";
+        buttons[2].textContent = "C";
+        buttons[3].textContent = "D";
+        buttons[0].style.top = "880px";
+        buttons[1].style.top = "880px";
+        buttons[2].style.top = "980px";
+        buttons[3].style.top = "980px";
+        buttons.forEach(btn => btn.classList.remove("hidden"));
+      };
+    }
+
+    function startQuiz5() {
+      buttons.forEach(btn => btn.classList.add("hidden"));
+      image.src = "girl.PNG";
+      image.onload = () => {
+        ctx.clearRect(0, 0, 750, 1334);
+        ctx.drawImage(image, 0, 0, 750, 1334);
+        nameBox.textContent = "西条さん";
+        textBox.style.fontSize = "34px";
+        textBox.textContent = "第5問:「仙人掌」の読みは？";
+        inputArea.style.display = "flex";
+      };
+    }
+
     canvas.addEventListener("click", () => {
       if (current < scenarios.length) {
         drawScene();
@@ -248,21 +287,28 @@
     buttons.forEach(btn => {
       btn.addEventListener("click", () => {
         const txt = btn.textContent;
-        if (txt === "徳島県" || txt === "バッグ・クロージャー") score++;
+        if (txt === "徳島県" || txt === "バッグ・クロージャー" || txt === "B") score++;
+
         if (mapImage.style.display === "block") {
           startQuiz2();
         } else if (koreImage.style.display === "block") {
-          koreImage.style.display = "none";
-          buttons.forEach(btn => btn.classList.add("hidden"));
-          alert("結果へ進みます（仮）");
+          startQuiz4();
+        } else if (textBox.innerHTML.includes("第4問")) {
+          startQuiz5();
         }
       });
     });
 
     submitAnswer.addEventListener("click", () => {
       const ans = answerInput.value.trim();
-      if (ans === "いまはむかし") score++;
-      startQuiz3();
+      if (ans === "いまはむかし" || ans === "さぼてん") score++;
+
+      if (textBox.textContent.includes("第二問")) {
+        startQuiz3();
+      } else if (textBox.textContent.includes("第5問")) {
+        inputArea.style.display = "none";
+        alert("結果へ進みます（仮）");
+      }
     });
 
     window.addEventListener("resize", resize);
