@@ -74,6 +74,12 @@
     #btn2 { top: 1080px; left: 410px; }
     #btn3 { top: 1180px; left: 100px; }
     #btn4 { top: 1180px; left: 410px; }
+    
+    #q6btn1 { top: 750px; left: 100px; }
+    #q6btn2 { top: 750px; left: 410px; }
+    #q6btn3 { top: 860px; left: 100px; }
+    #q6btn4 { top: 860px; left: 410px; }
+    
     .hidden { display: none; }
     #fade {
       position: absolute;
@@ -154,6 +160,12 @@
     <button id="btn2" class="quiz-button hidden"></button>
     <button id="btn3" class="quiz-button hidden"></button>
     <button id="btn4" class="quiz-button hidden"></button>
+    
+    <button id="q6btn1" class="quiz-button hidden"></button>
+    <button id="q6btn2" class="quiz-button hidden"></button>
+    <button id="q6btn3" class="quiz-button hidden"></button>
+    <button id="q6btn4" class="quiz-button hidden"></button>
+    
     <div id="inputArea">
       <input id="answerInput" type="text" placeholder="ひらがなで入力してね" />
       <button id="submitAnswer">答える</button>
@@ -183,6 +195,14 @@
       document.getElementById("btn2"),
       document.getElementById("btn3"),
       document.getElementById("btn4")
+      
+    const q6buttons = [
+    document.getElementById("q6btn1"),
+    document.getElementById("q6btn2"),
+    document.getElementById("q6btn3"),
+    document.getElementById("q6btn4")
+];
+      
     ];
 
     const scenarios = [
