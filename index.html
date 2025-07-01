@@ -112,6 +112,34 @@
       border: none;
       cursor: pointer;
     }
+    
+    #inputArea2 {
+      position: absolute;
+      top: 860px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      display: none;
+      gap: 10px;
+    }
+    #answerInput2 {
+      width: 400px;
+      height: 60px;
+      font-size: 28px;
+      border: 2px solid pink;
+      padding: 5px;
+      box-sizing: border-box;
+    }
+    #submitAnswer2 {
+      width: 120px;
+      height: 60px;
+      font-size: 24px;
+      font-weight: bold;
+      background: pink;
+      color: blue;
+      border: none;
+      cursor: pointer;
+}
   </style>
 </head>
 <body>
@@ -130,6 +158,9 @@
       <input id="answerInput" type="text" placeholder="ひらがなで入力してね" />
       <button id="submitAnswer">答える</button>
     </div>
+    <div id="inputArea2">
+  <input id="answerInput2" type="text" placeholder="ひらがなで入力してね" />
+  <button id="submitAnswer2">答える</button>
   </div>
 
   <script>
@@ -144,6 +175,9 @@
     const inputArea = document.getElementById("inputArea");
     const answerInput = document.getElementById("answerInput");
     const submitAnswer = document.getElementById("submitAnswer");
+    const inputArea2 = document.getElementById("inputArea2");
+    const answerInput2 = document.getElementById("answerInput2");
+    const submitAnswer2 = document.getElementById("submitAnswer2");
     const buttons = [
       document.getElementById("btn1"),
       document.getElementById("btn2"),
