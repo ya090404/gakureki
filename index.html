@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=750, user-scalable=no" />
+  <title>ノベル風ゲーム＋クイズ</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      height: 100%;
+      overflow: hidden;
+    }
+    #wrapper {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 750px;
+      height: 1334px;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+    .overlay {
+      position: absolute;
+      color: white;
+      font-weight: bold;
+      text-shadow: 2px 2px 0 black, -2px 2px 0 black, 2px -2px 0 black, -2px -2px 0 black;
+      font-family: sans-serif;
+      pointer-events: none;
+      z-index: 2;
+    }
+    #name {
+      top: 940px;
+      left: 75px;
+      font-size: 26px;
+      width: 200px;
+    }
+    #text {
+      top: 1020px;
+      left: 100px;
+      font-size: 34px;
+      width: 550px;
+      line-height: 1.4;
+    }
+    #map, #koreImage {
+      position: absolute;
+      top: 500px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 80%;
+      max-height: 200px;
+      z-index: 2;
+      display: none;
+    }
+    .quiz-button {
+      position: absolute;
+      width: 240px;
+      height: 80px;
+      background-color: pink;
+      color: blue;
+      font-weight: bold;
+      font-size: 28px;
+      border: none;
+      cursor: pointer;
+      z-index: 3;
+    }
+    #btn1 { top: 880px; left: 100px; }
+    #btn2 { top: 880px; left: 410px; }
+    #btn3 { top: 980px; left: 100px; }
+    #btn4 { top: 980px; left: 410px; }
+    .hidden { display: none; }
+    #fade {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: black;
+      opacity: 0;
+      transition: opacity 1s;
+      z-index: 10;
+      pointer-events: none;
+    }
+    #inputArea {
+      position: absolute;
+      top: 860px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      display: none;
+      gap: 10px;
+    }
+    #answerInput {
+      width: 400px;
+      height: 60px;
+      font-size: 28px;
+      border: 2px solid pink;
+      padding: 5px;
+      box-sizing: border-box;
+    }
+    #submitAnswer {
+      width: 120px;
+      height: 60px;
+      font-size: 24px;
+      font-weight: bold;
+      background: pink;
+      color: blue;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="wrapper">
+    <canvas id="gameCanvas" width="750" height="1334"></canvas>
+    <img id="map" src="4koku.PNG" />
+    <img id="koreImage" src="kore.PNG" />
+    <div id="name" class="overlay"></div>
+    <div id="text" class="overlay"></div>
+    <div id="fade"></div>
+    <button id="btn1" class="quiz-button hidden"></button>
+    <button id="btn2" class="quiz-button hidden"></button>
+    <button id="btn3" class="quiz-button hidden"></button>
+    <button id="btn4" class="quiz-button hidden"></button>
+    <div id="inputArea">
+      <input id="answerInput" type="text" placeholder="ひらがなで入力してね" />
+      <button id="submitAnswer">答える</button>
+    </div>
+  </div>
+
+  <script>
+    const wrapper = document.getElementById("wrapper");
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const nameBox = document.getElementById("name");
+    const textBox = document.getElementById("text");
+    const fade = document.getElementById("fade");
+    const mapImage = document.getElementById("map");
+    const koreImage = document.getElementById("koreImage");
+    const inputArea = document.getElementById("inputArea");
+    const answerInput = document.getElementById("answerInput");
+    const submitAnswer = document.getElementById("submitAnswer");
+    const buttons = [
+      document.getElementById("btn1"),
+      document.getElementById("btn2"),
+      document.getElementById("btn3"),
+      document.getElementById("btn4")
+    ];
+
+    const scenarios = [
+      { img: "girl.PNG", name: "西条さん", text: "…どうしたの？急に呼び出して" },
+      { img: "boy.PNG", name: "俺", text: "実は…その…伝えたいことがあって！" },
+      { img: "girl.PNG", name: "西条さん", text: "えっ、なに？" },
+      { img: "boy.PNG", name: "俺", text: "ずっと…好きでした！俺と、付き合ってください！" },
+      { img: "girl.PNG", name: "西条さん", text: "…" },
+      { img: "boy.PNG", name: "俺", text: "（これは…ダメか…！？）" },
+      { img: "girl.PNG", name: "西条さん", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…" },
+      { img: "girl.PNG", name: "西条さん", text: "私、誰かと付き合う前に、テストをするって決めてるの。" },
+      { img: "boy.PNG", name: "俺", text: "テ………テスト！？" },
+      { img: "girl.PNG", name: "西条さん", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。" },
+      { img: "boy.PNG", name: "俺", text: "わ………わかった！！" }
+    ];
+
+    let current = 0;
+    let score = 0;
+    const image = new Image();
+
+    function resize() {
+      const scale = Math.min(window.innerWidth / 750, window.innerHeight / 1334);
+      wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    }
+
+    function drawScene() {
+      const scene = scenarios[current];
+      image.src = scene.img;
+      image.onload = () => {
+        ctx.clearRect(0, 0, 750, 1334);
+        ctx.drawImage(image, 0, 0, 750, 1334);
+        nameBox.textContent = scene.name;
+        textBox.textContent = scene.text;
+      };
+    }
+
+    function startQuiz1() {
+      image.src = "girl.PNG";
+      image.onload = () => {
+        ctx.clearRect(0, 0, 750, 1334);
+        ctx.drawImage(image, 0, 0, 750, 1334);
+        nameBox.textContent = "西条さん";
+        textBox.textContent = "日本地図:この県はどこ？";
+        mapImage.style.display = "block";
+        buttons[0].textContent = "徳島県";
+        buttons[1].textContent = "香川県";
+        buttons[2].textContent = "愛媛県";
+        buttons[3].textContent = "高知県";
+        buttons.forEach(btn => btn.classList.remove("hidden"));
+      };
+    }
+
+    function startQuiz2() {
+      mapImage.style.display = "none";
+      buttons.forEach(btn => btn.classList.add("hidden"));
+      image.src = "girl.PNG";
+      image.onload = () => {
+        ctx.clearRect(0, 0, 750, 1334);
+        ctx.drawImage(image, 0, 0, 750, 1334);
+        nameBox.textContent = "西条さん";
+        textBox.textContent = "第二問:「 ？ 」をひらがなで埋めてね\n「   ？    」竹取の翁といふものありけり。";
+        answerInput.value = "";
+        inputArea.style.display = "flex";
+      };
+    }
+
+    function startQuiz3() {
+      inputArea.style.display = "none";
+      koreImage.style.display = "block";
+      image.src = "girl.PNG";
+      image.onload = () => {
+        ctx.clearRect(0, 0, 750, 1334);
+        ctx.drawImage(image, 0, 0, 750, 1334);
+        nameBox.textContent = "西条さん";
+        textBox.textContent = "第3問：これの名前は？";
+        buttons[0].textContent = "バッグ・クロージャー";
+        buttons[1].textContent = "バー・ロジャース";
+        buttons[2].textContent = "クロックタッチ";
+        buttons[3].textContent = "クロス・バー";
+        buttons.forEach(btn => btn.classList.remove("hidden"));
+      };
+    }
+
+    function startQuiz4() {
+      koreImage.style.display = "none";
+      buttons[0].textContent = "A";
+      buttons[1].textContent = "B";
+      buttons[2].textContent = "C";
+      buttons[3].textContent = "D";
+      image.src = "girl.PNG";
+      image.onload = () => {
+        ctx.clearRect(0, 0, 750, 1334);
+        ctx.drawImage(image, 0, 0, 750, 1334);
+        nameBox.textContent = "西条さん";
+        textBox.style.fontSize = "28px";
+        textBox.textContent = "第4問: A〜Dのうち、答えの違うものは？\nA: He wants to buy __ melon.\nB: She is eating __ apple.\nC: I ate __ banana.\nD: Would you like __ peach?";
+        buttons.forEach(btn => btn.classList.remove("hidden"));
+      };
+    }
+
+    function startQuiz5() {
+      buttons.forEach(btn => btn.classList.add("hidden"));
+      answerInput.value = "";
+      image.src = "girl.PNG";
+      image.onload = () => {
+        ctx.clearRect(0, 0, 750, 1334);
+        ctx.drawImage(image, 0, 0, 750, 1334);
+        textBox.style.fontSize = "34px";
+        nameBox.textContent = "西条さん";
+        textBox.textContent = "第5問：「仙人掌」の読みは？";
+        inputArea.style.display = "flex";
+      };
+    }
+
+    canvas.addEventListener("click", () => {
+      if (current < scenarios.length) {
+        drawScene();
+        current++;
+      } else if (current === scenarios.length) {
+        fade.style.opacity = 1;
+        setTimeout(() => {
+          fade.style.opacity = 0;
+          startQuiz1();
+        }, 1000);
+        current++;
+      }
+    });
+
+    buttons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const txt = btn.textContent;
+        if (txt === "徳島県" || txt === "バッグ・クロージャー" || txt === "B") score++;
+        if (mapImage.style.display === "block") {
+          startQuiz2();
+        } else if (koreImage.style.display === "block") {
+          startQuiz4();
+        } else if (textBox.textContent.includes("第4問")) {
+          startQuiz5();
+        }
+      });
+    });
+
+    submitAnswer.addEventListener("click", () => {
+      const ans = answerInput.value.trim();
+      if (textBox.textContent.includes("第二問") && ans === "いまはむかし") score++;
+      if (textBox.textContent.includes("第5問") && ans === "さぼてん") score++;
+      if (textBox.textContent.includes("第2問")) startQuiz3();
+      else if (textBox.textContent.includes("第5問")) {
+        inputArea.style.display = "none";
+        alert("結果へ進みます（仮）");
+      }
+    });
+
+    window.addEventListener("resize", resize);
+    resize();
+    drawScene();
+  </script>
+</body>
+</html>
