@@ -2,195 +2,163 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ノベル＋クイズゲーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>クイズゲーム</title>
   <style>
     body {
       margin: 0;
       background: black;
       overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
     canvas {
-      display: block;
-      margin: 0 auto;
-      background: black;
-    }
-    #quiz-img, #input-container, #input-container-2, .choice-btn {
-      position: absolute;
-      z-index: 10;
-    }
-    #quiz-img {
-      left: 50%;
-      transform: translateX(-50%);
-      max-width: 80%;
+      width: 100%;
       height: auto;
+      max-width: 750px;
+      max-height: 1334px;
+      display: block;
     }
-    #input-container, #input-container-2 {
-      left: 50%;
-      transform: translateX(-50%);
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      width: 90%;
-    }
-    input[type="text"] {
+    .button, .input-box, .input-button {
+      position: absolute;
       font-size: 20px;
-      padding: 8px;
-      width: 60%;
-      border: 2px solid #ccc;
-      border-radius: 4px;
-      margin-bottom: 10px;
+      font-family: sans-serif;
+      z-index: 2;
     }
-    button {
-      font-size: 18px;
-      padding: 10px 20px;
-      border: none;
+    .button {
       background-color: pink;
+      border: none;
+      padding: 10px;
+      width: 130px;
       color: blue;
-      border-radius: 8px;
-      margin: 5px;
+      font-weight: bold;
     }
-    .choice-btn {
-      width: 40%;
+    #input2, #input5 {
+      font-size: 20px;
+      padding: 5px;
+      width: 200px;
     }
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="750" height="1334"></canvas>
-  <img id="quiz-img" src="" style="display:none;" />
-  <div id="input-container">
-    <p style="color: white; font-weight: bold; font-size: 18px; text-shadow: 1px 1px 2px black;">ひらがなで答えてね</p>
-    <input type="text" id="answerInput" placeholder="こたえを入力" />
-    <button onclick="submitAnswer()">答える</button>
-  </div>
-  <div id="input-container-2">
-    <p style="color: white; font-weight: bold; font-size: 18px; text-shadow: 1px 1px 2px black;">ひらがなで答えてね</p>
-    <input type="text" id="answerInput2" placeholder="こたえを入力" />
-    <button onclick="submitAnswer2()">答える</button>
-  </div>
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
+<canvas id="canvas" width="750" height="1334"></canvas>
 
-    const images = {
-      girl: "girl.PNG",
-      boy: "boy.PNG"
-    };
+<!-- ボタン類（すべて非表示から開始） -->
+<button class="button" id="btnA" style="display:none; left:110px; top:940px;">A</button>
+<button class="button" id="btnB" style="display:none; left:400px; top:940px;">B</button>
+<button class="button" id="btnC" style="display:none; left:110px; top:1020px;">C</button>
+<button class="button" id="btnD" style="display:none; left:400px; top:1020px;">D</button>
 
-    const quizImage = document.getElementById("quiz-img");
-    const inputContainer = document.getElementById("input-container");
-    const inputContainer2 = document.getElementById("input-container-2");
-    const answerInput = document.getElementById("answerInput");
-    const answerInput2 = document.getElementById("answerInput2");
+<button class="button" id="btnQ4A" style="display:none; left:110px; top:560px;">A</button>
+<button class="button" id="btnQ4B" style="display:none; left:400px; top:560px;">B</button>
+<button class="button" id="btnQ4C" style="display:none; left:110px; top:640px;">C</button>
+<button class="button" id="btnQ4D" style="display:none; left:400px; top:640px;">D</button>
 
-    const quizAnswers = [];
-    let currentScene = 0;
+<input type="text" id="input2" class="input-box" style="display:none; left:180px; top:900px;" placeholder="ひらがなで入力してね">
+<button id="submit2" class="input-button" style="display:none; left:400px; top:900px;">答える</button>
 
-    const scenes = [
-      { image: "girl.PNG", text: "…どうしたの？急に呼び出して", speaker: "西条さん" },
-      { image: "boy.PNG", text: "実は…その…伝えたいことがあって！", speaker: "俺" },
-      { image: "girl.PNG", text: "えっ、なに？", speaker: "西条さん" },
-      { image: "boy.PNG", text: "ずっと…好きでした！俺と、付き合ってください！", speaker: "俺" },
-      { image: "girl.PNG", text: "…", speaker: "西条さん" },
-      { image: "boy.PNG", text: "(これは…ダメか…！？)", speaker: "俺" },
-      { image: "girl.PNG", text: "ありがとう。嬉しいよ。付き合いたい気持ちはあるけど…", speaker: "西条さん" },
-      { image: "girl.PNG", text: "私、誰かと付き合う前に、テストをするって決めてるの。", speaker: "西条さん" },
-      { image: "boy.PNG", text: "テ………テスト！？", speaker: "俺" },
-      { image: "girl.PNG", text: "今から、始めるね。全問正解したら、付き合ってもいいよ。", speaker: "西条さん" },
-      { image: "boy.PNG", text: "わ………わかった！！", speaker: "俺" },
-      { image: "girl.PNG", text: "日本地図：この県はどこ？", speaker: "西条さん", quiz: true, img: "q1.png", choices: ["徳島県", "香川県", "愛媛県", "高知県"], correct: "高知県" },
-      { image: "girl.PNG", text: "これはなんという名前の形？", speaker: "西条さん", quiz: true, img: "q2.png", choices: ["バッグ・クロージャー", "バー・ロジャース", "クロックタッチ", "クロス・バー"], correct: "クロス・バー" },
-      { image: "girl.PNG", text: "A〜Dのうち答えの違うものは？\n\nA: He wants to buy __ melon.\nB: She is eating __ apple.\nC: I ate __ banana.\nD: Would you like __ peach?", speaker: "西条さん", quiz: true, choices: ["A", "B", "C", "D"], correct: "B", fontsize: "18px" },
-      { image: "girl.PNG", text: "「仙人掌」の読みは？", speaker: "西条さん", quiz: true, input: true, correct: "さぼてん" }
-    ];
+<input type="text" id="input5" class="input-box" style="display:none; left:180px; top:900px;" placeholder="ひらがなで入力してね">
+<button id="submit5" class="input-button" style="display:none; left:400px; top:900px;">答える</button>
 
-    function drawScene() {
-      const scene = scenes[currentScene];
-      const img = new Image();
-      img.src = scene.image;
-      img.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
-        if (!scene.quiz) {
-          ctx.font = "28px sans-serif";
-          ctx.fillStyle = "white";
-          ctx.strokeStyle = "black";
-          ctx.lineWidth = 3;
-          ctx.strokeText(scene.speaker, 100, 1100);
-          ctx.fillText(scene.speaker, 100, 1100);
+const images = {
+  start: "start.PNG",
+  girl: "girl.PNG",
+  boy: "boy.PNG"
+};
 
-          ctx.font = "26px sans-serif";
-          ctx.strokeText(scene.text, 100, 1150);
-          ctx.fillText(scene.text, 100, 1150);
-        }
+const quizImages = [
+  "q1.png", "q2.png", "q3.png", "q4.png", "q5.png"
+];
 
-        quizImage.style.display = "none";
-        inputContainer.style.display = "none";
-        inputContainer2.style.display = "none";
-        document.querySelectorAll(".choice-btn").forEach(btn => btn.remove());
+const questions = [
+  { type: "choice", img: "girl.PNG", text: "日本地図:この県はどこ？", correct: "高知県", buttons: ["btnA","btnB","btnC","btnD"], labels: ["徳島県","香川県","愛媛県","高知県"] },
+  { type: "input", img: "boy.PNG", text: "ひらがなで答えてね", correct: "まつやま", input: "input2", submit: "submit2" },
+  { type: "choice", img: "girl.PNG", text: "この記号の名前は？", correct: "クロックタッチ", buttons: ["btnA","btnB","btnC","btnD"], labels: ["バッグ・クロージャー","バー・ロジャース","クロックタッチ","クロス・バー"] },
+  { type: "choice", img: "girl.PNG", text: "A〜Dのうち答えの違うものは？\n\nA: He wants to buy __ melon.\nB: She is eating __ apple.\nC: I ate __ banana.\nD: Would you like __ peach?", correct: "B", buttons: ["btnQ4A","btnQ4B","btnQ4C","btnQ4D"], labels: ["A","B","C","D"] },
+  { type: "input", img: "girl.PNG", text: "「仙人掌」の読みは？", correct: "さぼてん", input: "input5", submit: "submit5" }
+];
 
-        if (scene.quiz) {
-          if (scene.img) {
-            quizImage.src = scene.img;
-            quizImage.style.top = "30%";
-            quizImage.style.display = "block";
-          }
+let current = -1;
+let answers = [];
 
-          if (scene.choices) {
-            const fontSize = scene.fontsize || "24px";
-            const topOffset = currentScene === 12 ? 600 : 1010;
+function draw(img, text) {
+  const image = new Image();
+  image.src = img;
+  image.onload = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    if (text) {
+      ctx.fillStyle = "white";
+      ctx.font = "26px sans-serif";
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+      const lines = text.split("\n");
+      lines.forEach((line, i) => {
+        ctx.strokeText(line, 50, 1100 + i * 30);
+        ctx.fillText(line, 50, 1100 + i * 30);
+      });
+    }
+  };
+}
 
-            scene.choices.forEach((choice, index) => {
-              const btn = document.createElement("button");
-              btn.className = "choice-btn";
-              btn.innerText = choice;
-              btn.style.top = `${topOffset + Math.floor(index / 2) * 60}px`;
-              btn.style.left = `${index % 2 === 0 ? 80 : 400}px`;
-              btn.style.position = "absolute";
-              btn.style.fontSize = fontSize;
-              btn.onclick = () => {
-                quizAnswers.push(choice);
-                currentScene++;
-                drawScene();
-              };
-              document.body.appendChild(btn);
-            });
-          }
+function next() {
+  current++;
+  hideAll();
 
-          if (scene.input) {
-            inputContainer2.style.display = "flex";
-            answerInput2.value = "";
-          }
-        }
+  if (current >= questions.length) return end();
+
+  const q = questions[current];
+  draw(q.img, q.text);
+
+  if (q.type === "choice") {
+    q.buttons.forEach((btnId, i) => {
+      const btn = document.getElementById(btnId);
+      btn.textContent = q.labels[i];
+      btn.style.display = "block";
+      btn.onclick = () => {
+        answers.push(q.labels[i]);
+        next();
       };
-    }
-
-    canvas.addEventListener("click", () => {
-      if (scenes[currentScene] && scenes[currentScene].quiz) return;
-      currentScene++;
-      drawScene();
     });
+  } else if (q.type === "input") {
+    const input = document.getElementById(q.input);
+    const submit = document.getElementById(q.submit);
+    input.value = "";
+    input.style.display = "block";
+    submit.style.display = "block";
+    submit.onclick = () => {
+      answers.push(input.value.trim());
+      next();
+    };
+  }
+}
 
-    function submitAnswer() {
-      const answer = answerInput.value.trim();
-      if (answer) {
-        quizAnswers.push(answer);
-        currentScene++;
-        drawScene();
-      }
-    }
+function hideAll() {
+  document.querySelectorAll(".button, .input-box, .input-button").forEach(e => {
+    e.style.display = "none";
+  });
+}
 
-    function submitAnswer2() {
-      const answer = answerInput2.value.trim();
-      if (answer) {
-        quizAnswers.push(answer);
-        currentScene++;
-        drawScene();
-      }
-    }
+function end() {
+  const isAllCorrect = answers[0] === "高知県" &&
+                       answers[1] === "まつやま" &&
+                       answers[2] === "クロックタッチ" &&
+                       answers[3] === "B" &&
+                       answers[4] === "さぼてん";
+  const resultText = isAllCorrect ? "トゥルーエンド！" : "バッドエンド…";
+  draw("boy.PNG", resultText);
+}
 
-    drawScene();
-  </script>
+canvas.addEventListener("click", () => {
+  if (current === -1) next();
+});
+draw("start.PNG");
+</script>
 </body>
 </html>
