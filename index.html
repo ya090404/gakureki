@@ -70,16 +70,11 @@
       cursor: pointer;
       z-index: 3;
     }
-    #btn1, #btn2, #btn3, #btn4 {
-      top: 900px;
-    }
-    #btn1 { left: 100px; }
-    #btn2 { left: 410px; }
-    #btn3 { top: 1000px; left: 100px; }
-    #btn4 { top: 1000px; left: 410px; }
-
+    #btn1 { top: 880px; left: 100px; }
+    #btn2 { top: 880px; left: 410px; }
+    #btn3 { top: 980px; left: 100px; }
+    #btn4 { top: 980px; left: 410px; }
     .hidden { display: none; }
-
     #fade {
       position: absolute;
       width: 100%;
@@ -190,41 +185,12 @@
       };
     }
 
-    function startQuiz4() {
-      image.src = "girl.PNG";
-      image.onload = () => {
-        ctx.clearRect(0, 0, 750, 1334);
-        ctx.drawImage(image, 0, 0, 750, 1334);
-        nameBox.textContent = "西条さん";
-        textBox.style.fontSize = "28px"; // 少し小さく
-        textBox.textContent = "第4問: A〜Dのうち答えの違うものは？\nA:He wants to buy __ melon.\nB:She is eating __ apple.\nC:I ate __ banana.\nD:Would you like __ peach?";
-        buttons[0].textContent = "A";
-        buttons[1].textContent = "B";
-        buttons[2].textContent = "C";
-        buttons[3].textContent = "D";
-        buttons.forEach(btn => btn.classList.remove("hidden"));
-      };
-    }
-
-    function startQuiz5() {
-      buttons.forEach(btn => btn.classList.add("hidden"));
-      image.src = "girl.PNG";
-      image.onload = () => {
-        ctx.clearRect(0, 0, 750, 1334);
-        ctx.drawImage(image, 0, 0, 750, 1334);
-        nameBox.textContent = "西条さん";
-        textBox.style.fontSize = "34px"; // 戻す
-        textBox.textContent = "第5問：「仙人掌」の読みは？";
-        answerInput.value = ""; // 入力をリセット
-        inputArea.style.display = "flex";
-      };
-    }
-
-    // 他のイベントやクイズの定義（第1〜3問）は省略（既に完成済み）
-
-    window.addEventListener("resize", resize);
-    resize();
-    drawScene();
-  </script>
-</body>
-</html>
+    canvas.addEventListener("click", () => {
+      if (current < scenarios.length) {
+        const scene = scenarios[current];
+        image.src = scene.img;
+        image.onload = () => {
+          ctx.clearRect(0, 0, 750, 1334);
+          ctx.drawImage(image, 0, 0, 750, 1334);
+          nameBox.textContent = scene.name;
+          textBox.textContent
