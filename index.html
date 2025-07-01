@@ -195,15 +195,13 @@
       document.getElementById("btn2"),
       document.getElementById("btn3"),
       document.getElementById("btn4")
-      
+];
     const q6buttons = [
     document.getElementById("q6btn1"),
     document.getElementById("q6btn2"),
     document.getElementById("q6btn3"),
     document.getElementById("q6btn4")
 ];
-      
-    ];
 
     const scenarios = [
       { img: "girl.PNG", name: "西条さん", text: "…どうしたの？急に呼び出して" },
@@ -324,7 +322,26 @@
           answerInput2.value = ""; // 第5問の入力欄をリセット
           inputArea2.style.display = "flex"; // 第5問の入力欄を表示
         };
-      }
+  }
+        function startQuiz6() {
+      image.src = "girl.PNG";
+      image.onload = () => {
+        ctx.clearRect(0, 0, 750, 1334);
+        ctx.drawImage(image, 0, 0, 750, 1334);
+        nameBox.textContent = "西条さん";
+        textBox.style.fontSize = "28px";
+        textBox.innerHTML = "第6問：GDPとは何？<br>" +
+                            "A:国内にある全ての企業の売上の合計額<br>" +
+                            "B:国内に住んでいる人々が生み出した収入の平均額<br>" +
+                            "C:国内で一定期間に生み出された付加価値の総額<br>" +
+                            "D:国内が海外との貿易で得た利益の合計額";
+        q6buttons[0].textContent = "A";
+        q6buttons[1].textContent = "B";
+        q6buttons[2].textContent = "C";
+        q6buttons[3].textContent = "D";
+        q6buttons.forEach(btn => btn.classList.remove("hidden"));
+      };
+}
 
     canvas.addEventListener("click", () => {
       if (current < scenarios.length) {
@@ -354,6 +371,16 @@
         }
       });
     });
+    
+        q6buttons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const txt = btn.textContent;
+        if (txt === "C") score++;
+    
+        q6buttons.forEach(b => b.classList.add("hidden"));
+        alert("結果へ進みます（仮）");
+      });
+    });
 
     submitAnswer.addEventListener("click", () => {
       const ans = answerInput.value.trim();
@@ -369,7 +396,8 @@
         if (ans === "さぼてん") score++;
       
         inputArea2.style.display = "none";
-        alert("結果へ進みます（仮）");
+        
+        startQuiz6();
       });
 
     window.addEventListener("resize", resize);
