@@ -291,18 +291,20 @@
       };
     }
 
-    function startQuiz5() {
-      buttons.forEach(btn => btn.classList.add("hidden"));
-      image.src = "girl.PNG";
-      image.onload = () => {
-        ctx.clearRect(0, 0, 750, 1334);
-        ctx.drawImage(image, 0, 0, 750, 1334);
-        nameBox.textContent = "西条さん";
-        textBox.style.fontSize = "34px";
-        textBox.textContent = "第5問:「仙人掌」の読みは？";
-        inputArea.style.display = "flex";
-      };
-    }
+        function startQuiz5() {
+        buttons.forEach(btn => btn.classList.add("hidden"));
+        inputArea.style.display = "none"; // 第2問の入力欄を非表示に
+        image.src = "girl.PNG";
+        image.onload = () => {
+          ctx.clearRect(0, 0, 750, 1334);
+          ctx.drawImage(image, 0, 0, 750, 1334);
+          nameBox.textContent = "西条さん";
+          textBox.style.fontSize = "34px";
+          textBox.textContent = "第5問:「仙人掌」の読みは？";
+          answerInput2.value = ""; // 第5問の入力欄をリセット
+          inputArea2.style.display = "flex"; // 第5問の入力欄を表示
+        };
+      }
 
     canvas.addEventListener("click", () => {
       if (current < scenarios.length) {
@@ -335,15 +337,20 @@
 
     submitAnswer.addEventListener("click", () => {
       const ans = answerInput.value.trim();
-      if (ans === "いまはむかし" || ans === "さぼてん") score++;
+      if (ans === "いまはむかし") score++;
 
       if (textBox.textContent.includes("第二問")) {
         startQuiz3();
-      } else if (textBox.textContent.includes("第5問")) {
-        inputArea.style.display = "none";
-        alert("結果へ進みます（仮）");
       }
-    });
+      });
+
+      submitAnswer2.addEventListener("click", () => {
+        const ans = answerInput2.value.trim();
+        if (ans === "さぼてん") score++;
+      
+        inputArea2.style.display = "none";
+        alert("結果へ進みます（仮）");
+      });
 
     window.addEventListener("resize", resize);
     resize();
