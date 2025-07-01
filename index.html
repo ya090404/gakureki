@@ -70,11 +70,12 @@
       cursor: pointer;
       z-index: 3;
     }
-    #btn1 { top: 880px; left: 100px; }
-    #btn2 { top: 880px; left: 410px; }
-    #btn3 { top: 980px; left: 100px; }
-    #btn4 { top: 980px; left: 410px; }
+    /* 通常のボタン位置（1問目・3問目） */
+    #btn1, #btn2 { top: 1080px; }
+    #btn3, #btn4 { top: 1180px; }
+
     .hidden { display: none; }
+
     #fade {
       position: absolute;
       width: 100%;
@@ -85,6 +86,7 @@
       z-index: 10;
       pointer-events: none;
     }
+
     #inputArea, #inputArea2 {
       position: absolute;
       top: 860px;
@@ -94,6 +96,7 @@
       display: none;
       gap: 10px;
     }
+
     #answerInput, #answerInput2 {
       width: 400px;
       height: 60px;
@@ -102,6 +105,7 @@
       padding: 5px;
       box-sizing: border-box;
     }
+
     #submitAnswer, #submitAnswer2 {
       width: 120px;
       height: 60px;
@@ -131,7 +135,7 @@
       <button id="submitAnswer">答える</button>
     </div>
     <div id="inputArea2">
-      <input id="answerInput2" type="text" placeholder="ひらがなで入力してね" />
+      <input id="answerInput2" type="text" placeholder="読みをひらがなで入力してね" />
       <button id="submitAnswer2">答える</button>
     </div>
   </div>
@@ -205,7 +209,10 @@
         buttons[1].textContent = "香川県";
         buttons[2].textContent = "愛媛県";
         buttons[3].textContent = "高知県";
-        buttons.forEach(btn => btn.classList.remove("hidden"));
+        buttons.forEach(btn => {
+          btn.style.top = btn.id === "btn1" || btn.id === "btn2" ? "1080px" : "1180px";
+          btn.classList.remove("hidden");
+        });
       };
     }
 
@@ -235,7 +242,10 @@
         buttons[1].textContent = "バー・ロジャース";
         buttons[2].textContent = "クロックタッチ";
         buttons[3].textContent = "クロス・バー";
-        buttons.forEach(btn => btn.classList.remove("hidden"));
+        buttons.forEach(btn => {
+          btn.style.top = btn.id === "btn1" || btn.id === "btn2" ? "1080px" : "1180px";
+          btn.classList.remove("hidden");
+        });
       };
     }
 
@@ -256,18 +266,16 @@
         buttons[1].textContent = "B";
         buttons[2].textContent = "C";
         buttons[3].textContent = "D";
-        buttons[0].style.top = "880px";
-        buttons[1].style.top = "880px";
-        buttons[2].style.top = "980px";
-        buttons[3].style.top = "980px";
+        buttons[0].style.top = "830px";
+        buttons[1].style.top = "830px";
+        buttons[2].style.top = "930px";
+        buttons[3].style.top = "930px";
         buttons.forEach(btn => btn.classList.remove("hidden"));
       };
     }
 
     function startQuiz5() {
       buttons.forEach(btn => btn.classList.add("hidden"));
-      inputArea.style.display = "none";
-      answerInput2.value = "";
       image.src = "girl.PNG";
       image.onload = () => {
         ctx.clearRect(0, 0, 750, 1334);
@@ -311,9 +319,7 @@
     submitAnswer.addEventListener("click", () => {
       const ans = answerInput.value.trim();
       if (ans === "いまはむかし") score++;
-      if (textBox.textContent.includes("第二問")) {
-        startQuiz3();
-      }
+      startQuiz3();
     });
 
     submitAnswer2.addEventListener("click", () => {
